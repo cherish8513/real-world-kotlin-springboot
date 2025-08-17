@@ -1,6 +1,6 @@
 package com.joo.real_world.common.config
 
-import com.joo.real_world.common.config.filter.JwtFilter
+import com.joo.real_world.security.JwtFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity

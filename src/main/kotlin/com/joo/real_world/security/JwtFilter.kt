@@ -1,6 +1,5 @@
-package com.joo.real_world.common.config.filter
+package com.joo.real_world.security
 
-import com.joo.real_world.security.JwtTokenService
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -11,7 +10,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
-class JwtFilter(private val jwtTokenService: JwtTokenService,) :
+class JwtFilter(private val authService: AuthService,) :
     OncePerRequestFilter() {
 
     override fun doFilterInternal(
@@ -21,7 +20,7 @@ class JwtFilter(private val jwtTokenService: JwtTokenService,) :
     ) {
         val authHeader = request.getHeader("Authorization")
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            val user = jwtTokenService.extractUser(authHeader.substring(7))
+            val user = authService.extractUser(authHeader.substring(7))
             if (SecurityContextHolder.getContext().authentication == null) {
                 val authToken = UsernamePasswordAuthenticationToken(user, null, emptyList())
                 authToken.details = WebAuthenticationDetailsSource().buildDetails(request)

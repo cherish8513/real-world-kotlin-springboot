@@ -2,6 +2,7 @@ package com.joo.real_world.security
 
 import com.joo.real_world.common.exception.CustomExceptionType
 import com.joo.real_world.common.util.assertNotNull
+import com.joo.real_world.user.application.service.UserService
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
@@ -11,8 +12,8 @@ import javax.crypto.SecretKey
 
 
 @Service
-class JwtTokenService(
-    private val userRepository: UserRepository
+class AuthService(
+    private val userService: UserService
 ) {
     private val expiration = 60 * 30 * 1000 // 30 minutes
     private val signingKey: SecretKey = getSigningKey()
@@ -34,7 +35,7 @@ class JwtTokenService(
 
     fun extractUser(token: String): UserSession {
         val userId = Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token).payload.subject
-        val user = userRepository.findByUserId(userId).assertNotNull(CustomExceptionType.LOGIN_REQUIRED)
+        val user = userService.getUser(userId).assertNotNull(CustomExceptionType.LOGIN_REQUIRED)
         return UserSession()
     }
 }

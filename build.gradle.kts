@@ -21,14 +21,24 @@ repositories {
 }
 
 dependencies {
+	// web
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-web")
+
+	// jackson
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 
 	// jwt
 	implementation("io.jsonwebtoken:jjwt:0.12.6")
+
+	// h2
+	runtimeOnly("com.h2database:h2")
+
+	// validation
+	implementation("jakarta.validation:jakarta.validation-api:3.1.0")
+	implementation("org.springframework.boot:spring-boot-starter-validation")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
