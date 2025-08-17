@@ -6,5 +6,5 @@ data class UserResponse(
     val username: String,
     val bio: String?,
     val image: String?,
-    val token: String,
+    val token: String?,
 )

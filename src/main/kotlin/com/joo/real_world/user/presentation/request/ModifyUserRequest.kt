@@ -5,19 +5,20 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 
-data class RegisterRequest(
+data class ModifyUserRequest(
     @field:Valid
     @JsonProperty("user")
-    val registerUser: RegisterUser
+    val modifyUser: ModifyUser
 )
 
-
-data class RegisterUser(
-    @field:NotBlank
-    val username: String,
+data class ModifyUser(
     @field:NotBlank
     @field:Email
-    val email: String,
+    val email: String? = null,
     @field:NotBlank
-    val password: String,
+    val username: String? = null,
+    @field:NotBlank
+    val password: String? = null,
+    val bio: String? = null,
+    val image: String? = null,
 )

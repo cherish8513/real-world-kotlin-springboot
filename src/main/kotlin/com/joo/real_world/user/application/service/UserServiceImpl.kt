@@ -2,6 +2,7 @@ package com.joo.real_world.user.application.service
 
 import com.joo.real_world.common.exception.CustomExceptionType
 import com.joo.real_world.common.util.assertNotNull
+import com.joo.real_world.user.application.ModifyUserDto
 import com.joo.real_world.user.application.UserDto
 import com.joo.real_world.user.application.toUserDto
 import com.joo.real_world.user.domain.User
@@ -49,6 +50,22 @@ class UserServiceImpl(
         return userRepository.findByUserId(UserId(userId))
             .assertNotNull(CustomExceptionType.INVALID_USER)
             .toUserDto()
+    }
+
+    override fun modifyUser(modifyUserDto: ModifyUserDto): UserDto {
+        val beforeUser = userRepository
+            .findByUserId(UserId(modifyUserDto.id))
+            .assertNotNull(CustomExceptionType.INVALID_USER)
+
+        return userRepository.save(
+            beforeUser.change(
+                email = modifyUserDto.email,
+                username = modifyUserDto.username,
+                password = modifyUserDto.password?.let { Password.of(passwordEncoder.encode(it)) },
+                bio = modifyUserDto.bio,
+                image = modifyUserDto.image,
+            )
+        ).toUserDto()
     }
 
 }

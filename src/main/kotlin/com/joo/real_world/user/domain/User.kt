@@ -11,4 +11,22 @@ class User(
     val password: Password,
     val bio: String? = null,
     val image: String? = null,
-)
+) {
+    fun change(
+        email: String?,
+        username: String?,
+        password: Password?,
+        bio: String?,
+        image: String?
+    ): User {
+        return User(
+            id = id,
+            email = email?.let { Email.of(it) } ?: this.email,
+            username = username ?: this.username,
+            password = password ?: this.password,
+            bio = bio ?: this.bio,
+            image = image ?: this.image
+        )
+    }
+
+}

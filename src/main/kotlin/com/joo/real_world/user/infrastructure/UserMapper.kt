@@ -12,7 +12,9 @@ object UserMapper {
             id = user.id?.value,
             username = user.username,
             email = user.email.value,
-            password = user.password.value
+            password = user.password.value,
+            bio = user.bio,
+            image = user.image,
         )
 
     fun toDomain(entity: UserEntity): User =
@@ -20,6 +22,8 @@ object UserMapper {
             id = UserId(entity.id.assertNotNull()),
             username = entity.username,
             email = Email.of(entity.email),
-            password = Password.of(entity.password)
+            password = Password.of(entity.password),
+            bio = entity.bio,
+            image = entity.image
         )
 }

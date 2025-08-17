@@ -1,50 +1,43 @@
 package com.joo.real_world.user.presentation
 
 import com.joo.real_world.common.config.ApiController
-import com.joo.real_world.security.AuthService
+import com.joo.real_world.security.UserSession
+import com.joo.real_world.user.application.ModifyUserDto
+import com.joo.real_world.user.application.UserDto
 import com.joo.real_world.user.application.service.UserService
-import com.joo.real_world.user.presentation.request.LoginRequest
-import com.joo.real_world.user.presentation.request.RegisterRequest
+import com.joo.real_world.user.presentation.request.ModifyUserRequest
 import com.joo.real_world.user.presentation.response.UserResponse
 import jakarta.validation.Valid
-import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 
 @ApiController
-@RequestMapping("/users")
+@RequestMapping("/user")
 class UserController(
-    private val userService: UserService,
-    private val authService: AuthService
+    private val userService: UserService
 ) {
-    @PostMapping
-    fun register(@Valid @RequestBody registerRequest: RegisterRequest): UserResponse {
-        return userService.register(
-            username = registerRequest.registerUser.username,
-            email = registerRequest.registerUser.email,
-            password = registerRequest.registerUser.password
-        ).let {
-            UserResponse(
-                id = it.id,
-                username = it.username,
-                email = it.email,
-                token = authService.login(it.id),
-                bio = it.bio,
-                image = it.image
-            )
-        }
+    @GetMapping
+    fun getCurrentUser(@AuthenticationPrincipal userSession: UserSession): UserResponse {
+        return userService.getUser(userSession.userId).toUserResponse()
     }
 
-    @PostMapping("/login")
-    fun loginUser(@Valid @RequestBody loginRequest: LoginRequest): UserResponse {
-        val user = userService.getUser(email = loginRequest.loginUser.email, password = loginRequest.loginUser.password)
-        return UserResponse(
-            id = user.id,
-            username = user.username,
-            email = user.email,
-            token = authService.login(user.id),
-            bio = user.bio,
-            image = user.image
-        )
+    @PutMapping
+    fun modifyUser(
+        @Valid @RequestBody modifyUserRequest: ModifyUserRequest,
+        @AuthenticationPrincipal userSession: UserSession
+    ): UserResponse {
+        return userService.modifyUser(
+            ModifyUserDto(
+                id = userSession.userId,
+                username = modifyUserRequest.modifyUser.username,
+                email = modifyUserRequest.modifyUser.email,
+                password = modifyUserRequest.modifyUser.password,
+                bio = modifyUserRequest.modifyUser.bio,
+                image = modifyUserRequest.modifyUser.image,
+            )
+        ).toUserResponse()
     }
 }
