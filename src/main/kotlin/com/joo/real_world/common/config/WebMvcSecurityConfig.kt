@@ -29,7 +29,6 @@ class WebMvcSecurityConfig(
             .authorizeHttpRequests { authorize ->
                 authorize
                     .requestMatchers(*AUTH_EXCLUDE_PATH.toTypedArray()).permitAll()
-                    .requestMatchers(*AUTH_PATH.toTypedArray()).authenticated()
                     .anyRequest().authenticated()
             }
             .sessionManagement { session ->
@@ -41,13 +40,9 @@ class WebMvcSecurityConfig(
     }
 
     companion object {
-        private val AUTH_PATH = listOf(
-            "/api/**"
-        )
-
         private val AUTH_EXCLUDE_PATH = listOf(
-            "/api/user/signup",
-            "/api/user/login"
+            "/api/users",
+            "/api/users/login"
         )
     }
 }

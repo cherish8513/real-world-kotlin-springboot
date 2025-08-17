@@ -1,5 +1,7 @@
 package com.joo.real_world.security
 
 class UserSession(
-    //TODO
+    val userId: Long,
+    val username: String,
+    val email: String,
 )
