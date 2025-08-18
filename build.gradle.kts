@@ -40,9 +40,13 @@ dependencies {
 	implementation("jakarta.validation:jakarta.validation-api:3.1.0")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 
+	// test
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testImplementation("org.springframework.security:spring-security-test")
+	testImplementation("io.mockk:mockk:1.14.5")
+	testImplementation("com.ninja-squad:springmockk:4.0.2")
+
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

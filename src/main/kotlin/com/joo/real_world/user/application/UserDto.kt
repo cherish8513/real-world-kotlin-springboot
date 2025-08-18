@@ -4,15 +4,15 @@ data class UserDto(
     val id: Long,
     val username: String,
     val email: String,
-    val bio: String? = null,
-    val image: String? = null,
+    val bio: String?,
+    val image: String?,
 )
 
 data class ModifyUserDto(
     val id: Long,
-    val username: String? = null,
-    val email: String? = null,
-    val password: String? = null,
-    val bio: String? = null,
-    val image: String? = null,
+    val username: String?,
+    val email: String?,
+    val password: String?,
+    val bio: String?,
+    val image: String?,
 )

@@ -3,7 +3,6 @@ package com.joo.real_world.user.presentation
 import com.joo.real_world.common.config.ApiController
 import com.joo.real_world.security.UserSession
 import com.joo.real_world.user.application.ModifyUserDto
-import com.joo.real_world.user.application.UserDto
 import com.joo.real_world.user.application.service.UserService
 import com.joo.real_world.user.presentation.request.ModifyUserRequest
 import com.joo.real_world.user.presentation.response.UserResponse
