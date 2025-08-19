@@ -2,9 +2,9 @@ package com.joo.real_world.user.infrastructure
 
 import com.joo.real_world.common.util.assertNotNull
 import com.joo.real_world.user.domain.User
-import com.joo.real_world.user.domain.value.Email
-import com.joo.real_world.user.domain.value.Password
-import com.joo.real_world.user.domain.value.UserId
+import com.joo.real_world.user.domain.vo.Email
+import com.joo.real_world.user.domain.vo.Password
+import com.joo.real_world.user.domain.vo.UserId
 
 object UserMapper {
     fun toEntity(user: User): UserEntity =

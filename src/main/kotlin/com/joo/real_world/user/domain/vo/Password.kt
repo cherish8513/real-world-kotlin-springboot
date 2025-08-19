@@ -1,4 +1,4 @@
-package com.joo.real_world.user.domain.value
+package com.joo.real_world.user.domain.vo
 
 import org.springframework.security.crypto.password.PasswordEncoder
 

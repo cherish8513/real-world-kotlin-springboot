@@ -1,8 +1,8 @@
 package com.joo.real_world.user.domain
 
-import com.joo.real_world.user.domain.value.Email
-import com.joo.real_world.user.domain.value.Password
-import com.joo.real_world.user.domain.value.UserId
+import com.joo.real_world.user.domain.vo.Email
+import com.joo.real_world.user.domain.vo.Password
+import com.joo.real_world.user.domain.vo.UserId
 
 class User(
     val id: UserId? = null,

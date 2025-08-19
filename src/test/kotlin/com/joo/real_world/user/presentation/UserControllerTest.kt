@@ -3,7 +3,8 @@ package com.joo.real_world.user.presentation
 import com.joo.real_world.AbstractControllerTest
 import com.joo.real_world.user.application.ModifyUserDto
 import com.joo.real_world.user.application.UserDto
-import com.joo.real_world.user.application.service.UserService
+import com.joo.real_world.user.application.UserProviderService
+import com.joo.real_world.user.application.usecase.UpdateUserUseCase
 import com.joo.real_world.user.presentation.request.ModifyUser
 import com.joo.real_world.user.presentation.request.ModifyUserRequest
 import com.joo.real_world.user.presentation.response.UserResponse
@@ -22,7 +23,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 class UserControllerTest : AbstractControllerTest() {
 
     @MockkBean
-    private lateinit var userService: UserService
+    private lateinit var updateUserUseCase: UpdateUserUseCase
+
+    @MockkBean
+    private lateinit var userProviderService: UserProviderService
 
     @Test
     @WithMockUser
@@ -47,7 +51,7 @@ class UserControllerTest : AbstractControllerTest() {
             token = null
         )
 
-        every { userService.getUser(testUserSession.userId) } returns userDto
+        every { userProviderService.getUser(testUserSession.userId) } returns userDto
 
         // when & then
         mockMvc.perform(get("/api/user"))
@@ -55,7 +59,7 @@ class UserControllerTest : AbstractControllerTest() {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)))
 
-        verify(exactly = 1) { userService.getUser(testUserSession.userId) }
+        verify(exactly = 1) { userProviderService.getUser(testUserSession.userId) }
     }
 
     @Test
@@ -96,19 +100,21 @@ class UserControllerTest : AbstractControllerTest() {
 
         val requestJson = objectMapper.writeValueAsString(modifyRequest)
 
-        every { userService.modifyUser(any<ModifyUserDto>()) } returns updatedUserDto
+        every { updateUserUseCase.modifyUser(any<ModifyUserDto>()) } returns updatedUserDto
 
 
         // when & then
-        mockMvc.perform(put("/api/user")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(requestJson))
+        mockMvc.perform(
+            put("/api/user")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestJson)
+        )
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)))
 
         verify(exactly = 1) {
-            userService.modifyUser(
+            updateUserUseCase.modifyUser(
                 match<ModifyUserDto> { dto ->
                     dto.id == testUserSession.userId &&
                             dto.username == username &&
@@ -148,6 +154,6 @@ class UserControllerTest : AbstractControllerTest() {
             .andExpect(jsonPath("$.errors.body[?(@ == 'Username must not be blank')]").exists())
             .andExpect(jsonPath("$.errors.body[?(@ == 'Invalid email format')]").exists())
 
-        verify(exactly = 0) { userService.modifyUser(any()) }
+        verify(exactly = 0) { updateUserUseCase.modifyUser(any()) }
     }
 }

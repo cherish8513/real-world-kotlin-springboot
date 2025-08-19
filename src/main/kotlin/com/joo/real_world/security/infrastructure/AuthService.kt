@@ -1,4 +1,4 @@
-package com.joo.real_world.security.application
+package com.joo.real_world.security.infrastructure
 
 interface AuthService {
     fun login(userId: Long): String

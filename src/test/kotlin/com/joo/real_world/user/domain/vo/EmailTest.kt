@@ -1,4 +1,4 @@
-package com.joo.real_world.user.domain.value
+package com.joo.real_world.user.domain.vo
 
 import com.joo.real_world.common.exception.CustomException
 import com.joo.real_world.common.exception.CustomExceptionType
