@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotBlank
 
 data class LoginRequest(
     @field:Valid
-    @JsonProperty("user")
+    @field:JsonProperty("user")
     val loginUser: LoginUser
 )
 

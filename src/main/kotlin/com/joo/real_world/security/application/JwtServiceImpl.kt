@@ -1,4 +1,4 @@
-package com.joo.real_world.security
+package com.joo.real_world.security.application
 
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
@@ -9,16 +9,16 @@ import java.util.*
 import javax.crypto.SecretKey
 
 @Component
-class JwtService(
+class JwtServiceImpl(
     @Value("\${jwt.secret}") private val secretKey: String,
     @Value("\${jwt.expiration}") private val expiration: Long
-) {
+) : JwtService {
     private val signingKey: SecretKey by lazy {
         val keyBytes = Decoders.BASE64.decode(secretKey)
         Keys.hmacShaKeyFor(keyBytes)
     }
 
-    fun generateToken(userId: Long, username: String, email: String): String {
+    override fun generateToken(userId: Long, username: String, email: String): String {
         return Jwts.builder()
             .subject(userId.toString())
             .claim("username", username)
@@ -29,7 +29,7 @@ class JwtService(
             .compact()
     }
 
-    fun extractUserId(token: String): Long {
+    override fun extractUserId(token: String): Long {
         return Jwts.parser()
             .verifyWith(signingKey)
             .build()
@@ -39,7 +39,7 @@ class JwtService(
             .toLong()
     }
 
-    fun isTokenValid(token: String): Boolean {
+    override fun isTokenValid(token: String): Boolean {
         return try {
             val claims = Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token)
             claims.payload.expiration.after(Date())

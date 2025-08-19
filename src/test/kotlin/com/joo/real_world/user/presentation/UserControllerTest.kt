@@ -16,9 +16,7 @@ import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 @WebMvcTest(UserController::class)
 class UserControllerTest : AbstractControllerTest() {
@@ -89,18 +87,22 @@ class UserControllerTest : AbstractControllerTest() {
 
         val expectedResponse = UserResponse(
             id = testUserSession.userId,
-            username = testUserSession.username,
-            email = testUserSession.email,
+            username = username,
+            email = email,
             bio = bio,
             image = image,
             token = null
         )
 
+        val requestJson = objectMapper.writeValueAsString(modifyRequest)
+
         every { userService.modifyUser(any<ModifyUserDto>()) } returns updatedUserDto
 
 
         // when & then
-        mockMvc.perform(put("/api/user", modifyRequest))
+        mockMvc.perform(put("/api/user")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestJson))
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)))
@@ -120,21 +122,31 @@ class UserControllerTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `modifyUser with invalid request should return bad request`() {
+    @WithMockUser
+    fun `should return bad request when modifyUser request is invalid`() {
         // given
         val invalidRequest = ModifyUserRequest(
             modifyUser = ModifyUser(
-                username = "", // invalid empty username
-                email = "invalid-email", // invalid email format
+                username = "",                  // invalid
+                email = "invalid-email",        // invalid
                 password = null,
                 bio = null,
                 image = null
             )
         )
 
+        val requestJson = objectMapper.writeValueAsString(invalidRequest)
+
         // when & then
-        mockMvc.perform(put("/api/user", invalidRequest))
+        mockMvc.perform(
+            put("/api/user")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestJson)
+        )
             .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.errors.body").isArray)
+            .andExpect(jsonPath("$.errors.body[?(@ == 'Username must not be blank')]").exists())
+            .andExpect(jsonPath("$.errors.body[?(@ == 'Invalid email format')]").exists())
 
         verify(exactly = 0) { userService.modifyUser(any()) }
     }

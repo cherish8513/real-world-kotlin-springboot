@@ -1,4 +1,4 @@
-package com.joo.real_world.security
+package com.joo.real_world.security.application
 
 class UserSession(
     val userId: Long,

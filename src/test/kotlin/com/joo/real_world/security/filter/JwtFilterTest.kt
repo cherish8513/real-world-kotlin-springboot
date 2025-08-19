@@ -1,8 +1,8 @@
 package com.joo.real_world.security.filter
 
-import com.joo.real_world.security.AuthService
-import com.joo.real_world.security.JwtService
-import com.joo.real_world.security.UserSession
+import com.joo.real_world.security.application.AuthService
+import com.joo.real_world.security.application.JwtService
+import com.joo.real_world.security.application.UserSession
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.AfterEach

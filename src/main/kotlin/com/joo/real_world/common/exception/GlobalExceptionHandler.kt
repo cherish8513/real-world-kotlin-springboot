@@ -1,5 +1,6 @@
 package com.joo.real_world.common.exception
 
+import jakarta.validation.ConstraintViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -8,6 +9,29 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
+    @ExceptionHandler(
+        value = [MethodArgumentNotValidException::class, ConstraintViolationException::class]
+    )
+    fun handleValidationException(e: Exception): ResponseEntity<ErrorResponse> {
+        val errorMessages = when (e) {
+            is MethodArgumentNotValidException ->
+                e.bindingResult.fieldErrors.map { it.defaultMessage ?: "Validation error" }
+
+            is ConstraintViolationException ->
+                e.constraintViolations.map { it.message }
+
+            else -> listOf("Validation error")
+        }
+
+        val errorResponse = ErrorResponse(
+            errors = Errors(
+                body = errorMessages
+            )
+        )
+
+        return ResponseEntity.badRequest().body(errorResponse)
+    }
+
 
     @ExceptionHandler(CustomException::class)
     fun handleCustomException(e: CustomException): ResponseEntity<ErrorResponse> {
@@ -20,19 +44,6 @@ class GlobalExceptionHandler {
         return ResponseEntity
             .status(e.exceptionType.httpStatus)
             .body(errorResponse)
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException::class)
-    fun handleValidationException(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
-        val errorMessages = e.bindingResult.fieldErrors.map { it.defaultMessage ?: "Validation error" }
-
-        val errorResponse = ErrorResponse(
-            errors = Errors(
-                body = errorMessages
-            )
-        )
-
-        return ResponseEntity.badRequest().body(errorResponse)
     }
 
     @ExceptionHandler(Exception::class)

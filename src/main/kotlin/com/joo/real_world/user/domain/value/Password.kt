@@ -10,4 +10,6 @@ value class Password private constructor(val value: String) {
     companion object {
         fun of(encoded: String): Password = Password(encoded)
     }
+
+    override fun toString() = value
 }

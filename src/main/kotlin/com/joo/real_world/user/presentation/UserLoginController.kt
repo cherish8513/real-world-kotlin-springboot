@@ -1,7 +1,7 @@
 package com.joo.real_world.user.presentation
 
 import com.joo.real_world.common.config.ApiController
-import com.joo.real_world.security.AuthService
+import com.joo.real_world.security.application.AuthService
 import com.joo.real_world.user.application.service.UserService
 import com.joo.real_world.user.presentation.request.LoginRequest
 import com.joo.real_world.user.presentation.request.RegisterRequest

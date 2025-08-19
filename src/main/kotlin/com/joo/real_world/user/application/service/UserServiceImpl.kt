@@ -39,11 +39,15 @@ class UserServiceImpl(
 
     override fun getUser(email: String, password: String): UserDto {
         val user = userRepository.findByEmail(Email.of(email))
-            ?.takeIf { it.password.matches(password, passwordEncoder) }
             ?: throw CustomExceptionType.INVALID_USER.toException()
+
+        if (!user.password.matches(password, passwordEncoder)) {
+            throw CustomExceptionType.PASSWORD_INCORRECT.toException()
+        }
 
         return user.toUserDto()
     }
+
 
 
     override fun getUser(userId: Long): UserDto {

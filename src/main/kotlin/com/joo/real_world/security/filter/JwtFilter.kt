@@ -1,7 +1,7 @@
 package com.joo.real_world.security.filter
 
-import com.joo.real_world.security.AuthService
-import com.joo.real_world.security.JwtService
+import com.joo.real_world.security.application.AuthService
+import com.joo.real_world.security.application.JwtService
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse

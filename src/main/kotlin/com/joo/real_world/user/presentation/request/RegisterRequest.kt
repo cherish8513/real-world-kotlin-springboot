@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotBlank
 
 data class RegisterRequest(
     @field:Valid
-    @JsonProperty("user")
+    @field:JsonProperty("user")
     val registerUser: RegisterUser
 )
 

@@ -1,4 +1,4 @@
-package com.joo.real_world.security
+package com.joo.real_world.security.application
 
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class JwtServiceTest {
+class JwtServiceImplTest {
     private lateinit var jwtService: JwtService
 
     private val secret = Base64.getEncoder().encodeToString("my-secret-key-which-is-long-enough".toByteArray())
@@ -15,7 +15,7 @@ class JwtServiceTest {
 
     @BeforeEach
     fun setUp() {
-        jwtService = JwtService(secret, expiration)
+        jwtService = JwtServiceImpl(secret, expiration)
     }
 
     @Test
@@ -35,7 +35,7 @@ class JwtServiceTest {
 
     @Test
     fun `isTokenValid should return false for expired token`() {
-        val shortExpirationService = JwtService(secret, 1L) // 1ms
+        val shortExpirationService = JwtServiceImpl(secret, 1L) // 1ms
         val token = shortExpirationService.generateToken(1L, "tester", "test@email.com")
 
         Thread.sleep(10) // 토큰 만료 대기

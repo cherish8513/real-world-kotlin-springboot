@@ -1,4 +1,4 @@
-package com.joo.real_world.security
+package com.joo.real_world.security.application
 
 import com.joo.real_world.user.application.UserDto
 import com.joo.real_world.user.application.service.UserService
@@ -9,10 +9,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-class AuthServiceTest {
+class AuthServiceImplTest {
     private val userService: UserService = mockk()
     private val jwtService: JwtService = mockk()
-    private val authService = AuthService(userService, jwtService)
+    private val authService = AuthServiceImpl(userService, jwtService)
 
     @Test
     fun `login should return token when user exists`() {

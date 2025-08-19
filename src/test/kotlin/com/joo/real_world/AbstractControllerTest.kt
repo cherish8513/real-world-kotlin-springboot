@@ -1,14 +1,14 @@
 package com.joo.real_world
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.joo.real_world.security.AuthService
-import com.joo.real_world.security.JwtService
-import com.joo.real_world.security.UserSession
+import com.joo.real_world.security.application.AuthService
+import com.joo.real_world.security.application.JwtService
+import com.joo.real_world.security.application.UserSession
+import com.ninjasquad.springmockk.MockkBean
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 
 
@@ -16,11 +16,11 @@ abstract class AbstractControllerTest {
     @Autowired
     protected lateinit var mockMvc: MockMvc
 
-    @MockitoBean
-    private lateinit var authService: AuthService
+    @MockkBean
+    protected lateinit var authService: AuthService  // private → protected로 변경
 
-    @MockitoBean
-    private lateinit var jwtService: JwtService
+    @MockkBean
+    protected lateinit var jwtService: JwtService    // private → protected로 변경
 
     lateinit var objectMapper: ObjectMapper
 
