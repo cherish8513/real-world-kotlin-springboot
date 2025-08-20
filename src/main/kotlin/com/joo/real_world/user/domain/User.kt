@@ -28,5 +28,4 @@ class User(
             image = image ?: this.image
         )
     }
-
 }

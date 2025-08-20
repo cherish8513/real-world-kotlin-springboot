@@ -3,7 +3,7 @@ package com.joo.real_world.user.presentation
 import com.joo.real_world.AbstractControllerTest
 import com.joo.real_world.user.application.UserDto
 import com.joo.real_world.user.application.usecase.LoginUseCase
-import com.joo.real_world.user.application.usecase.RegisterUseCase
+import com.joo.real_world.user.application.usecase.UserManagementUseCase
 import com.joo.real_world.user.presentation.request.LoginRequest
 import com.joo.real_world.user.presentation.request.LoginUser
 import com.joo.real_world.user.presentation.request.RegisterRequest
@@ -24,7 +24,7 @@ class UserLoginControllerTest : AbstractControllerTest() {
     private lateinit var loginUseCase: LoginUseCase
 
     @MockkBean
-    private lateinit var registerUseCase: RegisterUseCase
+    private lateinit var userManagementUseCase: UserManagementUseCase
 
     private val testUsername = "testuser"
     private val testEmail = "test@example.com"
@@ -50,7 +50,7 @@ class UserLoginControllerTest : AbstractControllerTest() {
             )
         )
 
-        every { registerUseCase.register(testUsername, testEmail, testPassword) } returns testUserDto
+        every { userManagementUseCase.register(testUsername, testEmail, testPassword) } returns testUserDto
 
         val requestJson = objectMapper.writeValueAsString(registerRequest)
 
@@ -64,7 +64,7 @@ class UserLoginControllerTest : AbstractControllerTest() {
             .andExpect(jsonPath("$.user.username").value(testUsername))
             .andExpect(jsonPath("$.user.email").value(testEmail))
 
-        verify(exactly = 1) { registerUseCase.register(testUsername, testEmail, testPassword) }
+        verify(exactly = 1) { userManagementUseCase.register(testUsername, testEmail, testPassword) }
     }
 
     @Test
@@ -119,7 +119,7 @@ class UserLoginControllerTest : AbstractControllerTest() {
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.errors.body").isArray)
 
-        verify(exactly = 0) { registerUseCase.register(any(), any(), any()) }
+        verify(exactly = 0) { userManagementUseCase.register(any(), any(), any()) }
     }
 
     @Test

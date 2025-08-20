@@ -3,7 +3,7 @@ package com.joo.real_world.user.presentation
 import com.joo.real_world.common.config.ApiController
 import com.joo.real_world.security.infrastructure.AuthService
 import com.joo.real_world.user.application.usecase.LoginUseCase
-import com.joo.real_world.user.application.usecase.RegisterUseCase
+import com.joo.real_world.user.application.usecase.UserManagementUseCase
 import com.joo.real_world.user.presentation.request.LoginRequest
 import com.joo.real_world.user.presentation.request.RegisterRequest
 import com.joo.real_world.user.presentation.response.UserResponse
@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping
 @ApiController
 @RequestMapping("/users")
 class UserLoginController(
-    private val registerUseCase: RegisterUseCase,
+    private val userManagementUseCase: UserManagementUseCase,
     private val loginUseCase: LoginUseCase,
     private val authService: AuthService
 ) {
     @PostMapping
     fun register(@Valid @RequestBody registerRequest: RegisterRequest): UserResponse {
-        return registerUseCase.register(
+        return userManagementUseCase.register(
             username = registerRequest.registerUser.username,
             email = registerRequest.registerUser.email,
             password = registerRequest.registerUser.password

@@ -5,7 +5,9 @@ import com.joo.real_world.common.util.assertNotNull
 import com.joo.real_world.user.application.ModifyUserDto
 import com.joo.real_world.user.application.UserDto
 import com.joo.real_world.user.application.toUserDto
+import com.joo.real_world.user.domain.User
 import com.joo.real_world.user.domain.UserRepository
+import com.joo.real_world.user.domain.vo.Email
 import com.joo.real_world.user.domain.vo.Password
 import com.joo.real_world.user.domain.vo.UserId
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -14,10 +16,29 @@ import org.springframework.transaction.annotation.Transactional
 
 @Transactional(rollbackFor = [Exception::class])
 @Service
-class UpdateUserUseCaseImpl(
+class UserManagementUseCaseImpl(
     private val passwordEncoder: PasswordEncoder,
     private val userRepository: UserRepository
-) : UpdateUserUseCase {
+) : UserManagementUseCase {
+    override fun register(username: String, email: String, password: String): UserDto {
+        validateDuplicateUser(email = email, username = username)
+
+        return userRepository.save(
+            User(
+                username = username,
+                email = Email.of(email),
+                password = Password.of(passwordEncoder.encode(password))
+            )
+        ).toUserDto()
+    }
+
+    private fun validateDuplicateUser(email: String, username: String) {
+        if (userRepository.findByEmail(Email.of(email)) != null)
+            throw CustomExceptionType.DUPLICATE_EMAIL_EXIST.toException()
+        if (userRepository.findByUsername(username) != null)
+            throw CustomExceptionType.DUPLICATE_NAME_EXIST.toException()
+    }
+
     override fun modifyUser(modifyUserDto: ModifyUserDto): UserDto {
         val beforeUser = userRepository
             .findByUserId(UserId(modifyUserDto.id))

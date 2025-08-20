@@ -14,7 +14,10 @@ enum class CustomExceptionType(
     INVALID_USER(HttpStatus.NOT_FOUND, "존재하지 않는 유저 입니다."),
     PASSWORD_INCORRECT(HttpStatus.NOT_FOUND, "비밀번호가 맞지 않습니다."),
     LOGIN_REQUIRED(HttpStatus.UNAUTHORIZED, "로그인 후 이용할 수 있습니다."),
-    INVALID_EMAIL_FORMAT(HttpStatus.BAD_REQUEST, "유효하지 않은 이메일 형식입니다."); // 추가
+    INVALID_EMAIL_FORMAT(HttpStatus.BAD_REQUEST, "유효하지 않은 이메일 형식입니다."),
+    ALREADY_FOLLOW(HttpStatus.BAD_REQUEST, "이미 팔로우 되어 있습니다."),
+    NOT_FOLLOW(HttpStatus.BAD_REQUEST, "팔로우가 되어 있지 않습니다.");
+
 
     fun toException(message: String? = null): CustomException {
         return CustomException(this, message ?: this.message)

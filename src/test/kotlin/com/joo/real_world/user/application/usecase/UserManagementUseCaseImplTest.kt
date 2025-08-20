@@ -1,6 +1,7 @@
 package com.joo.real_world.user.application.usecase
 
 import com.joo.real_world.common.exception.CustomExceptionType
+import com.joo.real_world.user.application.ModifyUserDto
 import com.joo.real_world.user.domain.User
 import com.joo.real_world.user.domain.UserRepository
 import com.joo.real_world.user.domain.vo.Email
@@ -14,11 +15,11 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.security.crypto.password.PasswordEncoder
 
-class RegisterUseCaseImplTest {
-
+class UserManagementUseCaseImplTest {
     private val userRepository: UserRepository = mockk()
     private val passwordEncoder: PasswordEncoder = mockk()
-    private val registerUseCase: RegisterUseCase = RegisterUseCaseImpl(passwordEncoder, userRepository)
+    private val userManagementUseCase: UserManagementUseCase =
+        UserManagementUseCaseImpl(passwordEncoder, userRepository)
 
     @Test
     fun `success to register`() {
@@ -37,7 +38,7 @@ class RegisterUseCaseImplTest {
         every { userRepository.save(any()) } returns user
 
         // when
-        val result = registerUseCase.register(username, email, rawPassword)
+        val result = userManagementUseCase.register(username, email, rawPassword)
 
         // then
         assertEquals(username, result.username)
@@ -52,8 +53,39 @@ class RegisterUseCaseImplTest {
 
         // when & then
         val ex = assertThrows<RuntimeException> {
-            registerUseCase.register("tester", email, "pw")
+            userManagementUseCase.register("tester", email, "pw")
         }
         assertEquals(CustomExceptionType.DUPLICATE_EMAIL_EXIST.toException()::class, ex::class)
+    }
+
+    @Test
+    fun `success to modify user`() {
+        // given
+        val beforeUser = User(
+            id = UserId(1L),
+            email = Email.of("before@before.com"),
+            username = "tester",
+            password = Password.of("beforePw")
+        )
+        val modifyDto = ModifyUserDto(
+            id = 1L,
+            email = "after@test.com",
+            username = "after",
+            password = "newPw",
+            bio = "bio",
+            image = "image"
+        )
+        val encodedPassword = "encodedNewPw"
+
+        every { userRepository.findByUserId(UserId(modifyDto.id)) } returns beforeUser
+        every { passwordEncoder.encode(modifyDto.password!!) } returns encodedPassword
+        every { userRepository.save(any()) } answers { firstArg<User>() }
+
+        // when
+        val result = userManagementUseCase.modifyUser(modifyDto)
+
+        // then
+        assertEquals(modifyDto.username, result.username)
+        assertEquals(modifyDto.email, result.email)
     }
 }
