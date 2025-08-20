@@ -7,6 +7,7 @@ import com.joo.real_world.user.application.UserProviderService
 import com.joo.real_world.user.application.usecase.UpdateUserUseCase
 import com.joo.real_world.user.presentation.request.ModifyUser
 import com.joo.real_world.user.presentation.request.ModifyUserRequest
+import com.joo.real_world.user.presentation.response.User
 import com.joo.real_world.user.presentation.response.UserResponse
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -43,12 +44,14 @@ class UserControllerTest : AbstractControllerTest() {
         )
 
         val expectedResponse = UserResponse(
-            id = testUserSession.userId,
-            username = testUserSession.username,
-            email = testUserSession.email,
-            bio = bio,
-            image = image,
-            token = null
+            User(
+                id = testUserSession.userId,
+                username = testUserSession.username,
+                email = testUserSession.email,
+                bio = bio,
+                image = image,
+                token = null
+            )
         )
 
         every { userProviderService.getUser(testUserSession.userId) } returns userDto
@@ -90,12 +93,14 @@ class UserControllerTest : AbstractControllerTest() {
         )
 
         val expectedResponse = UserResponse(
-            id = testUserSession.userId,
-            username = username,
-            email = email,
-            bio = bio,
-            image = image,
-            token = null
+            User(
+                id = testUserSession.userId,
+                username = username,
+                email = email,
+                bio = bio,
+                image = image,
+                token = null
+            )
         )
 
         val requestJson = objectMapper.writeValueAsString(modifyRequest)

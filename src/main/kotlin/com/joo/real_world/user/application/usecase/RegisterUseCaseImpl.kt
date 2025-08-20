@@ -18,7 +18,7 @@ class RegisterUseCaseImpl(
     private val userRepository: UserRepository
 ) : RegisterUseCase {
     override fun register(username: String, email: String, password: String): UserDto {
-        validateDuplicateUser(email)
+        validateDuplicateUser(email = email, username = username)
 
         return userRepository.save(
             User(
@@ -29,8 +29,10 @@ class RegisterUseCaseImpl(
         ).toUserDto()
     }
 
-    private fun validateDuplicateUser(email: String) {
+    private fun validateDuplicateUser(email: String, username: String) {
         if (userRepository.findByEmail(Email.of(email)) != null)
-            throw CustomExceptionType.DUPLICATE_USER_EXIST.toException()
+            throw CustomExceptionType.DUPLICATE_EMAIL_EXIST.toException()
+        if (userRepository.findByUsername(username) != null)
+            throw CustomExceptionType.DUPLICATE_NAME_EXIST.toException()
     }
 }

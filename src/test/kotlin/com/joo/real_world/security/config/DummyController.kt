@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.GetMapping
 class DummyController {
     @GetMapping("/users")
     fun users() = "ok"
+
     @GetMapping("/users/login")
     fun login() = "ok"
+
     @GetMapping("/secret")
     fun secret() = "ok"
 }

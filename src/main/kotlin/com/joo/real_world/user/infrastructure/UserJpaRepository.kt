@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository
 
 interface IUserJpaRepository : JpaRepository<UserEntity, Long> {
     fun findByEmail(email: String): UserEntity?
+    fun findByUsername(username: String): UserEntity?
 }
 
 @Repository
@@ -28,5 +29,9 @@ class UserJpaRepository(
 
     override fun findByUserId(userId: UserId): User? {
         return userJpaRepository.findByIdOrNull(userId.value)?.let { UserMapper.toDomain(it) }
+    }
+
+    override fun findByUsername(username: String): User? {
+        return userJpaRepository.findByUsername(username)?.let { UserMapper.toDomain(it) }
     }
 }

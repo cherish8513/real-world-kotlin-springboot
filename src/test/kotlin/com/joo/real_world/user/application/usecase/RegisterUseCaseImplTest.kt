@@ -32,6 +32,7 @@ class RegisterUseCaseImplTest {
             User(id = UserId(1L), email = Email.of(email), username = username, password = Password.of(encodedPassword))
 
         every { userRepository.findByEmail(Email.of(email)) } returns null
+        every { userRepository.findByUsername(username) } returns null
         every { passwordEncoder.encode(rawPassword) } returns encodedPassword
         every { userRepository.save(any()) } returns user
 
@@ -53,6 +54,6 @@ class RegisterUseCaseImplTest {
         val ex = assertThrows<RuntimeException> {
             registerUseCase.register("tester", email, "pw")
         }
-        assertEquals(CustomExceptionType.DUPLICATE_USER_EXIST.toException()::class, ex::class)
+        assertEquals(CustomExceptionType.DUPLICATE_EMAIL_EXIST.toException()::class, ex::class)
     }
 }

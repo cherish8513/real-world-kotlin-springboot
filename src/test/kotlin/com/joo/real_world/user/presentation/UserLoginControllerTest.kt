@@ -61,8 +61,8 @@ class UserLoginControllerTest : AbstractControllerTest() {
                 .content(requestJson)
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.username").value(testUsername))
-            .andExpect(jsonPath("$.email").value(testEmail))
+            .andExpect(jsonPath("$.user.username").value(testUsername))
+            .andExpect(jsonPath("$.user.email").value(testEmail))
 
         verify(exactly = 1) { registerUseCase.register(testUsername, testEmail, testPassword) }
     }
@@ -89,9 +89,9 @@ class UserLoginControllerTest : AbstractControllerTest() {
                 .content(requestJson)
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.username").value(testUsername))
-            .andExpect(jsonPath("$.email").value(testEmail))
-            .andExpect(jsonPath("$.token").value(testToken))
+            .andExpect(jsonPath("$.user.username").value(testUsername))
+            .andExpect(jsonPath("$.user.email").value(testEmail))
+            .andExpect(jsonPath("$.user.token").value(testToken))
 
         verify(exactly = 1) { loginUseCase.getUser(email = testEmail, password = testPassword) }
         verify(exactly = 1) { authService.login(testUserId) }
