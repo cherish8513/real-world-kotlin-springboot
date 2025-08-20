@@ -1,8 +1,9 @@
 package com.joo.real_world.user.presentation
 
 import com.joo.real_world.common.config.ApiController
-import com.joo.real_world.security.application.AuthService
-import com.joo.real_world.user.application.service.UserService
+import com.joo.real_world.security.infrastructure.AuthService
+import com.joo.real_world.user.application.usecase.LoginUseCase
+import com.joo.real_world.user.application.usecase.UserManagementUseCase
 import com.joo.real_world.user.presentation.request.LoginRequest
 import com.joo.real_world.user.presentation.request.RegisterRequest
 import com.joo.real_world.user.presentation.response.UserResponse
@@ -14,12 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping
 @ApiController
 @RequestMapping("/users")
 class UserLoginController(
-    private val userService: UserService,
+    private val userManagementUseCase: UserManagementUseCase,
+    private val loginUseCase: LoginUseCase,
     private val authService: AuthService
 ) {
     @PostMapping
     fun register(@Valid @RequestBody registerRequest: RegisterRequest): UserResponse {
-        return userService.register(
+        return userManagementUseCase.register(
             username = registerRequest.registerUser.username,
             email = registerRequest.registerUser.email,
             password = registerRequest.registerUser.password
@@ -28,7 +30,7 @@ class UserLoginController(
 
     @PostMapping("/login")
     fun loginUser(@Valid @RequestBody loginRequest: LoginRequest): UserResponse {
-        return userService.getUser(email = loginRequest.loginUser.email, password = loginRequest.loginUser.password)
+        return loginUseCase.getUser(email = loginRequest.loginUser.email, password = loginRequest.loginUser.password)
             .let { it.toUserResponse(authService.login(it.id)) }
     }
 }

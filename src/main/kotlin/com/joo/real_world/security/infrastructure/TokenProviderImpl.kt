@@ -1,4 +1,4 @@
-package com.joo.real_world.security.application
+package com.joo.real_world.security.infrastructure
 
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
@@ -9,10 +9,10 @@ import java.util.*
 import javax.crypto.SecretKey
 
 @Component
-class JwtServiceImpl(
+class TokenProviderImpl(
     @Value("\${jwt.secret}") private val secretKey: String,
     @Value("\${jwt.expiration}") private val expiration: Long
-) : JwtService {
+) : TokenProvider {
     private val signingKey: SecretKey by lazy {
         val keyBytes = Decoders.BASE64.decode(secretKey)
         Keys.hmacShaKeyFor(keyBytes)

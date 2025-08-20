@@ -5,7 +5,12 @@ import org.springframework.web.bind.annotation.GetMapping
 
 @ApiController
 class DummyController {
-    @GetMapping("/users") fun users() = "ok"
-    @GetMapping("/users/login") fun login() = "ok"
-    @GetMapping("/secret") fun secret() = "ok"
+    @GetMapping("/users")
+    fun users() = "ok"
+
+    @GetMapping("/users/login")
+    fun login() = "ok"
+
+    @GetMapping("/secret")
+    fun secret() = "ok"
 }

@@ -1,9 +1,9 @@
 package com.joo.real_world.user.presentation
 
 import com.joo.real_world.AbstractControllerTest
-import com.joo.real_world.security.application.AuthService
 import com.joo.real_world.user.application.UserDto
-import com.joo.real_world.user.application.service.UserService
+import com.joo.real_world.user.application.usecase.LoginUseCase
+import com.joo.real_world.user.application.usecase.UserManagementUseCase
 import com.joo.real_world.user.presentation.request.LoginRequest
 import com.joo.real_world.user.presentation.request.LoginUser
 import com.joo.real_world.user.presentation.request.RegisterRequest
@@ -21,7 +21,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @WebMvcTest(UserLoginController::class)
 class UserLoginControllerTest : AbstractControllerTest() {
     @MockkBean
-    private lateinit var userService: UserService
+    private lateinit var loginUseCase: LoginUseCase
+
+    @MockkBean
+    private lateinit var userManagementUseCase: UserManagementUseCase
 
     private val testUsername = "testuser"
     private val testEmail = "test@example.com"
@@ -47,7 +50,7 @@ class UserLoginControllerTest : AbstractControllerTest() {
             )
         )
 
-        every { userService.register(testUsername, testEmail, testPassword) } returns testUserDto
+        every { userManagementUseCase.register(testUsername, testEmail, testPassword) } returns testUserDto
 
         val requestJson = objectMapper.writeValueAsString(registerRequest)
 
@@ -58,10 +61,10 @@ class UserLoginControllerTest : AbstractControllerTest() {
                 .content(requestJson)
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.username").value(testUsername))
-            .andExpect(jsonPath("$.email").value(testEmail))
+            .andExpect(jsonPath("$.user.username").value(testUsername))
+            .andExpect(jsonPath("$.user.email").value(testEmail))
 
-        verify(exactly = 1) { userService.register(testUsername, testEmail, testPassword) }
+        verify(exactly = 1) { userManagementUseCase.register(testUsername, testEmail, testPassword) }
     }
 
     @Test
@@ -74,7 +77,7 @@ class UserLoginControllerTest : AbstractControllerTest() {
             )
         )
 
-        every { userService.getUser(email = testEmail, password = testPassword) } returns testUserDto
+        every { loginUseCase.getUser(email = testEmail, password = testPassword) } returns testUserDto
         every { authService.login(testUserId) } returns testToken
 
         val requestJson = objectMapper.writeValueAsString(loginRequest)
@@ -86,11 +89,11 @@ class UserLoginControllerTest : AbstractControllerTest() {
                 .content(requestJson)
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.username").value(testUsername))
-            .andExpect(jsonPath("$.email").value(testEmail))
-            .andExpect(jsonPath("$.token").value(testToken))
+            .andExpect(jsonPath("$.user.username").value(testUsername))
+            .andExpect(jsonPath("$.user.email").value(testEmail))
+            .andExpect(jsonPath("$.user.token").value(testToken))
 
-        verify(exactly = 1) { userService.getUser(email = testEmail, password = testPassword) }
+        verify(exactly = 1) { loginUseCase.getUser(email = testEmail, password = testPassword) }
         verify(exactly = 1) { authService.login(testUserId) }
     }
 
@@ -116,7 +119,7 @@ class UserLoginControllerTest : AbstractControllerTest() {
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.errors.body").isArray)
 
-        verify(exactly = 0) { userService.register(any(), any(), any()) }
+        verify(exactly = 0) { userManagementUseCase.register(any(), any(), any()) }
     }
 
     @Test
@@ -140,7 +143,7 @@ class UserLoginControllerTest : AbstractControllerTest() {
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.errors.body").isArray)
 
-        verify(exactly = 0) { userService.getUser(any(), any()) }
+        verify(exactly = 0) { loginUseCase.getUser(any(), any()) }
         verify(exactly = 0) { authService.login(any()) }
     }
 }

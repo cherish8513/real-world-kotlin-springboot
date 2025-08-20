@@ -1,14 +1,14 @@
-package com.joo.real_world.user.domain.value
+package com.joo.real_world.user.domain.vo
 
-import org.junit.jupiter.api.Test
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.jupiter.api.Test
 import org.springframework.security.crypto.password.PasswordEncoder
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
-import kotlin.test.assertFalse
 
 class PasswordTest {
 

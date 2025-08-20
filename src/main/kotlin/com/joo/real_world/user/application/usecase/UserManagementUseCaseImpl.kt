@@ -1,4 +1,4 @@
-package com.joo.real_world.user.application.service
+package com.joo.real_world.user.application.usecase
 
 import com.joo.real_world.common.exception.CustomExceptionType
 import com.joo.real_world.common.util.assertNotNull
@@ -7,21 +7,21 @@ import com.joo.real_world.user.application.UserDto
 import com.joo.real_world.user.application.toUserDto
 import com.joo.real_world.user.domain.User
 import com.joo.real_world.user.domain.UserRepository
-import com.joo.real_world.user.domain.value.Email
-import com.joo.real_world.user.domain.value.Password
-import com.joo.real_world.user.domain.value.UserId
+import com.joo.real_world.user.domain.vo.Email
+import com.joo.real_world.user.domain.vo.Password
+import com.joo.real_world.user.domain.vo.UserId
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Transactional(rollbackFor = [Exception::class])
 @Service
-class UserServiceImpl(
+class UserManagementUseCaseImpl(
     private val passwordEncoder: PasswordEncoder,
     private val userRepository: UserRepository
-) : UserService {
+) : UserManagementUseCase {
     override fun register(username: String, email: String, password: String): UserDto {
-        validateDuplicateUser(email)
+        validateDuplicateUser(email = email, username = username)
 
         return userRepository.save(
             User(
@@ -32,28 +32,11 @@ class UserServiceImpl(
         ).toUserDto()
     }
 
-    private fun validateDuplicateUser(email: String) {
+    private fun validateDuplicateUser(email: String, username: String) {
         if (userRepository.findByEmail(Email.of(email)) != null)
-            throw CustomExceptionType.DUPLICATE_USER_EXIST.toException()
-    }
-
-    override fun getUser(email: String, password: String): UserDto {
-        val user = userRepository.findByEmail(Email.of(email))
-            ?: throw CustomExceptionType.INVALID_USER.toException()
-
-        if (!user.password.matches(password, passwordEncoder)) {
-            throw CustomExceptionType.PASSWORD_INCORRECT.toException()
-        }
-
-        return user.toUserDto()
-    }
-
-
-
-    override fun getUser(userId: Long): UserDto {
-        return userRepository.findByUserId(UserId(userId))
-            .assertNotNull(CustomExceptionType.INVALID_USER)
-            .toUserDto()
+            throw CustomExceptionType.DUPLICATE_EMAIL_EXIST.toException()
+        if (userRepository.findByUsername(username) != null)
+            throw CustomExceptionType.DUPLICATE_NAME_EXIST.toException()
     }
 
     override fun modifyUser(modifyUserDto: ModifyUserDto): UserDto {
@@ -71,5 +54,4 @@ class UserServiceImpl(
             )
         ).toUserDto()
     }
-
 }

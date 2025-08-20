@@ -5,6 +5,7 @@ import com.joo.real_world.security.filter.ExceptionHandlerFilter
 import com.joo.real_world.security.filter.JwtFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
@@ -31,6 +32,7 @@ class WebMvcSecurityConfig(
             .authorizeHttpRequests { authorize ->
                 authorize
                     .requestMatchers(*AUTH_EXCLUDE_PATH.toTypedArray()).permitAll()
+                    .requestMatchers(HttpMethod.GET, *AUTH_EXCLUDE_PATH_GET.toTypedArray()).permitAll()
                     .anyRequest().authenticated()
             }
             .sessionManagement { session ->
@@ -47,6 +49,9 @@ class WebMvcSecurityConfig(
         private val AUTH_EXCLUDE_PATH = listOf(
             "api/users",
             "api/users/login"
+        )
+        private val AUTH_EXCLUDE_PATH_GET = listOf(
+            "api/profiles/*"
         )
     }
 }

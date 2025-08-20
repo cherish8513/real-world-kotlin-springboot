@@ -1,14 +1,12 @@
 package com.joo.real_world.user.presentation.response
 
-data class UserResponse(
-    val user: User
+data class ProfileResponse(
+    val profile: Profile
 )
 
-data class User(
-    val id: Long,
-    val email: String,
+data class Profile(
     val username: String,
     val bio: String?,
     val image: String?,
-    val token: String?,
+    val following: Boolean
 )

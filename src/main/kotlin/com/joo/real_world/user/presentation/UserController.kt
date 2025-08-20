@@ -1,9 +1,10 @@
 package com.joo.real_world.user.presentation
 
 import com.joo.real_world.common.config.ApiController
-import com.joo.real_world.security.application.UserSession
+import com.joo.real_world.security.infrastructure.UserSession
 import com.joo.real_world.user.application.ModifyUserDto
-import com.joo.real_world.user.application.service.UserService
+import com.joo.real_world.user.application.UserProviderService
+import com.joo.real_world.user.application.usecase.UserManagementUseCase
 import com.joo.real_world.user.presentation.request.ModifyUserRequest
 import com.joo.real_world.user.presentation.response.UserResponse
 import jakarta.validation.Valid
@@ -16,11 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping
 @ApiController
 @RequestMapping("/user")
 class UserController(
-    private val userService: UserService
+    private val userProviderService: UserProviderService,
+    private val userManagementUseCase: UserManagementUseCase
 ) {
     @GetMapping
     fun getCurrentUser(@AuthenticationPrincipal userSession: UserSession): UserResponse {
-        return userService.getUser(userSession.userId).toUserResponse()
+        return userProviderService.getUser(userSession.userId).toUserResponse()
     }
 
     @PutMapping
@@ -28,7 +30,7 @@ class UserController(
         @Valid @RequestBody modifyUserRequest: ModifyUserRequest,
         @AuthenticationPrincipal userSession: UserSession
     ): UserResponse {
-        return userService.modifyUser(
+        return userManagementUseCase.modifyUser(
             ModifyUserDto(
                 id = userSession.userId,
                 username = modifyUserRequest.modifyUser.username,

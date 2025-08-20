@@ -1,8 +1,8 @@
 package com.joo.real_world.security.filter
 
-import com.joo.real_world.security.application.AuthService
-import com.joo.real_world.security.application.JwtService
-import com.joo.real_world.security.application.UserSession
+import com.joo.real_world.security.infrastructure.AuthService
+import com.joo.real_world.security.infrastructure.TokenProvider
+import com.joo.real_world.security.infrastructure.UserSession
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.AfterEach
@@ -16,9 +16,9 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class JwtFilterTest {
-    private val jwtService: JwtService = mockk()
+    private val tokenProvider: TokenProvider = mockk()
     private val authService: AuthService = mockk()
-    private val jwtFilter = JwtFilter(jwtService, authService)
+    private val jwtFilter = JwtFilter(tokenProvider, authService)
 
     @AfterEach
     fun cleanup() {
@@ -40,7 +40,7 @@ class JwtFilterTest {
         val response = MockHttpServletResponse()
         val filterChain = MockFilterChain()
 
-        every { jwtService.isTokenValid(token) } returns true
+        every { tokenProvider.isTokenValid(token) } returns true
         every { authService.getUserSession(token) } returns userSession
 
         // when
@@ -63,7 +63,7 @@ class JwtFilterTest {
         val response = MockHttpServletResponse()
         val filterChain = MockFilterChain()
 
-        every { jwtService.isTokenValid(token) } returns false
+        every { tokenProvider.isTokenValid(token) } returns false
 
         // when
         jwtFilter.doFilter(request, response, filterChain)
