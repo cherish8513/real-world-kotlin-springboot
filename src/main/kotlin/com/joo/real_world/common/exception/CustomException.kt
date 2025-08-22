@@ -9,6 +9,7 @@ enum class CustomExceptionType(
     val message: String = "알 수 없는 에러가 발생했습니다."
 ) {
     UNEXPECTED_ERROR_OCCURRED(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 에러가 발생했습니다."),
+    BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
     DUPLICATE_EMAIL_EXIST(HttpStatus.FORBIDDEN, "중복된 이메일이 존재합니다."),
     DUPLICATE_NAME_EXIST(HttpStatus.FORBIDDEN, "중복된 이름이 존재합니다."),
     INVALID_USER(HttpStatus.NOT_FOUND, "존재하지 않는 유저 입니다."),
