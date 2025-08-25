@@ -15,7 +15,8 @@ interface IArticleJpaRepository : JpaRepository<ArticleEntity, Long> {
 
 @Repository
 class ArticleJpaRepository(
-    private val articleJpaRepository: IArticleJpaRepository
+    private val articleJpaRepository: IArticleJpaRepository,
+    private val tagJpaRepository: TagJpaRepository
 ) : ArticleRepository {
     override fun save(article: Article): Article {
         val baseSlug = article.slug.value
@@ -30,8 +31,12 @@ class ArticleJpaRepository(
 
 
         if (article.tags != null) {
-            val tags = article.tags.map { TagEntity(name = it.value) }
-            tags.map { articleEntity.addTag(it) }
+            val tagNames = article.tags.map { it.value }
+            val tags = tagJpaRepository.findOrCreateTags(tagNames)
+
+            tags.forEach { articleEntity.addTag(it) }
+
+            articleJpaRepository.save(articleEntity)
         }
 
         return articleJpaRepository.save(articleEntity).toDomain()
@@ -43,6 +48,7 @@ class ArticleJpaRepository(
 
     override fun delete(articleId: ArticleId) {
         val article = articleJpaRepository.findByIdOrNull(articleId.value).assertNotNull()
+        article.articleTags.map { article.removeTag(it.tag) }
         articleJpaRepository.delete(article)
     }
 }
