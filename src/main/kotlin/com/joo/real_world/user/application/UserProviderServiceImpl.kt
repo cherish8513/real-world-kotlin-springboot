@@ -7,7 +7,7 @@ import com.joo.real_world.user.domain.vo.UserId
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
-@Transactional(rollbackFor = [Exception::class])
+@Transactional(readOnly = true, rollbackFor = [Exception::class])
 @Service
 class UserProviderServiceImpl(
     private val userRepository: UserRepository

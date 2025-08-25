@@ -21,6 +21,8 @@ class ArticleEntity(
     val body: String,
     @OneToMany(mappedBy = "article", cascade = [CascadeType.ALL], orphanRemoval = true)
     val articleTags: MutableList<ArticleTagEntity> = mutableListOf(),
+    val favorited: Boolean,
+    val favoritesCount: Int,
     val authorId: Long
 ) {
     @Column(insertable = false, updatable = false)
