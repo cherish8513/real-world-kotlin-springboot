@@ -4,9 +4,9 @@ import com.joo.real_world.article.domain.ArticleRepository
 import com.joo.real_world.article.domain.vo.Slug
 import com.joo.real_world.common.exception.CustomExceptionType
 import com.joo.real_world.common.util.assertNotNull
+import com.joo.real_world.follow.application.FollowRelationService
 import com.joo.real_world.security.infrastructure.UserSession
 import com.joo.real_world.user.application.UserProviderService
-import com.joo.real_world.user.application.FollowRelationService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

@@ -6,6 +6,7 @@ import com.joo.real_world.user.application.ModifyUserDto
 import com.joo.real_world.user.application.UserDto
 import com.joo.real_world.user.application.toUserDto
 import com.joo.real_world.user.domain.User
+import com.joo.real_world.user.domain.UserDomainService
 import com.joo.real_world.user.domain.UserRepository
 import com.joo.real_world.user.domain.vo.Email
 import com.joo.real_world.user.domain.vo.Password
@@ -18,10 +19,11 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class UserManagementUseCaseImpl(
     private val passwordEncoder: PasswordEncoder,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val userDomainService: UserDomainService
 ) : UserManagementUseCase {
     override fun register(username: String, email: String, password: String): UserDto {
-        validateDuplicateUser(email = email, username = username)
+        userDomainService.validateDuplicateUser(email = email, username = username)
 
         return userRepository.save(
             User(
@@ -30,13 +32,6 @@ class UserManagementUseCaseImpl(
                 password = Password.of(passwordEncoder.encode(password))
             )
         ).toUserDto()
-    }
-
-    private fun validateDuplicateUser(email: String, username: String) {
-        if (userRepository.findByEmail(Email.of(email)) != null)
-            throw CustomExceptionType.DUPLICATE_EMAIL_EXIST.toException()
-        if (userRepository.findByUsername(username) != null)
-            throw CustomExceptionType.DUPLICATE_NAME_EXIST.toException()
     }
 
     override fun modifyUser(modifyUserDto: ModifyUserDto): UserDto {

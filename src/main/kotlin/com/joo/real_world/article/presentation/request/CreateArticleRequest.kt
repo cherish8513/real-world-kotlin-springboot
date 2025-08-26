@@ -2,7 +2,7 @@ package com.joo.real_world.article.presentation.request
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-data class CreateArticleRequest (
+data class CreateArticleRequest(
     @field:JsonProperty("article")
     val createArticleRequestDto: CreateArticleRequestDto
 )

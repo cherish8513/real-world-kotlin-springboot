@@ -1,7 +1,7 @@
-package com.joo.real_world.user.infrastructure
+package com.joo.real_world.follow.infrastructure
 
-import com.joo.real_world.user.domain.Follow
-import com.joo.real_world.user.domain.FollowRepository
+import com.joo.real_world.follow.domain.Follow
+import com.joo.real_world.follow.domain.FollowRepository
 import com.joo.real_world.user.domain.vo.UserId
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository

@@ -1,6 +1,6 @@
-package com.joo.real_world.user.application
+package com.joo.real_world.follow.application
 
-import com.joo.real_world.user.domain.FollowRepository
+import com.joo.real_world.follow.domain.FollowRepository
 import com.joo.real_world.user.domain.vo.UserId
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class FollowRelationServiceImpl(
     private val followRepository: FollowRepository
-): FollowRelationService {
+) : FollowRelationService {
     override fun isFollowing(followerId: Long, followeeId: Long): Boolean {
         return followRepository.isFollowing(followerId = UserId(followerId), followeeId = UserId(followeeId))
     }

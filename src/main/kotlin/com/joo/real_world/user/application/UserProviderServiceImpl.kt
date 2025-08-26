@@ -17,4 +17,10 @@ class UserProviderServiceImpl(
             .assertNotNull(CustomExceptionType.INVALID_USER)
             .toUserDto()
     }
+
+    override fun getUser(username: String): UserDto {
+        return userRepository.findByUsername(username)
+            .assertNotNull(CustomExceptionType.INVALID_USER)
+            .toUserDto()
+    }
 }
