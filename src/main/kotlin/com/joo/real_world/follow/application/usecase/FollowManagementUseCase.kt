@@ -1,4 +1,4 @@
-package com.joo.real_world.user.application.usecase
+package com.joo.real_world.follow.application.usecase
 
 import com.joo.real_world.user.application.ProfileDto
 

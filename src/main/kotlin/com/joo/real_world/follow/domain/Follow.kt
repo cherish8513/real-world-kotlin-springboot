@@ -1,5 +1,6 @@
-package com.joo.real_world.user.domain
+package com.joo.real_world.follow.domain
 
+import com.joo.real_world.common.exception.CustomExceptionType
 import com.joo.real_world.user.domain.vo.UserId
 
 class Follow(
@@ -8,7 +9,7 @@ class Follow(
 ) {
     companion object {
         fun create(followerId: UserId, followeeId: UserId): Follow {
-            require(followerId != followeeId) { "자기 자신을 팔로우할 수 없습니다" }
+            require(followerId != followeeId) { throw CustomExceptionType.BAD_REQUEST.toException(("You can't follow yourself")) }
             return Follow(
                 followerId = followerId,
                 followeeId = followeeId

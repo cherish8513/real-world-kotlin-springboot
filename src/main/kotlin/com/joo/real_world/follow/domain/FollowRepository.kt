@@ -1,4 +1,4 @@
-package com.joo.real_world.user.domain
+package com.joo.real_world.follow.domain
 
 import com.joo.real_world.user.domain.vo.UserId
 

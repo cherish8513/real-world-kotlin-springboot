@@ -1,4 +1,4 @@
-package com.joo.real_world.user.infrastructure
+package com.joo.real_world.follow.infrastructure
 
 import com.joo.real_world.common.exception.CustomExceptionType
 import jakarta.persistence.Embeddable
