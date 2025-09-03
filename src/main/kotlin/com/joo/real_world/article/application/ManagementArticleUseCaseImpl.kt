@@ -20,34 +20,32 @@ class ManagementArticleUseCaseImpl(
     private val userProviderService: UserProviderService,
 ) : ManagementArticleUseCase {
     override fun createArticle(
-        createArticleRequest: CreateArticleRequest,
+        createArticleCommand: CreateArticleCommand,
         userSession: UserSession
     ): ArticleDto {
-        val request = createArticleRequest.createArticleRequestDto
         val author = userProviderService.getUser(userSession.userId)
         return articleRepository.save(
             Article.create(
-                title = Title(request.title),
-                description = Description(request.description),
-                body = Body(request.body),
-                tags = request.tagList?.map { Tag(it) },
+                title = Title(createArticleCommand.title),
+                description = Description(createArticleCommand.description),
+                body = Body(createArticleCommand.body),
+                tags = createArticleCommand.tagList?.map { Tag(it) },
                 authorId = UserId(author.id)
             )
         ).toDto(author = author, following = false)
     }
 
     override fun updateArticle(
-        updateArticleRequest: UpdateArticleRequest,
+        updateArticleCommand: UpdateArticleCommand,
         slug: String,
         userSession: UserSession
     ): ArticleDto {
         val article = articleRepository.findBySlug(Slug(slug)).assertNotNull(CustomExceptionType.NOT_FOUND_SLUG)
         article.validateArticleOwn(UserId(userSession.userId))
-        val request = updateArticleRequest.updateArticleRequestDto
         val changedArticle = article.change(
-            title = request.title?.let { Title(it) },
-            description = request.description?.let { Description(it) },
-            body = request.body?.let { Body(it) }
+            title = updateArticleCommand.title?.let { Title(it) },
+            description = updateArticleCommand.description?.let { Description(it) },
+            body = updateArticleCommand.body?.let { Body(it) }
         )
 
         val author = userProviderService.getUser(userSession.userId)

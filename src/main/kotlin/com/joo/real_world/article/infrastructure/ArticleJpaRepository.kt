@@ -1,9 +1,13 @@
 package com.joo.real_world.article.infrastructure
 
+import com.joo.real_world.article.application.ArticleDto
+import com.joo.real_world.article.application.query.ArticleQueryRepository
+import com.joo.real_world.article.application.query.dto.ArticleCondition
 import com.joo.real_world.article.domain.Article
 import com.joo.real_world.article.domain.ArticleRepository
 import com.joo.real_world.article.domain.vo.ArticleId
 import com.joo.real_world.article.domain.vo.Slug
+import com.joo.real_world.common.application.query.PageSpec
 import com.joo.real_world.common.util.assertNotNull
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.repository.findByIdOrNull

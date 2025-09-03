@@ -1,7 +1,10 @@
 package com.joo.real_world.article.application
 
+import com.joo.real_world.article.application.query.ArticleQueryRepository
+import com.joo.real_world.article.application.query.dto.ArticleCondition
 import com.joo.real_world.article.domain.ArticleRepository
 import com.joo.real_world.article.domain.vo.Slug
+import com.joo.real_world.common.application.query.PageSpec
 import com.joo.real_world.common.exception.CustomExceptionType
 import com.joo.real_world.common.util.assertNotNull
 import com.joo.real_world.follow.application.FollowRelationService
@@ -14,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class ViewArticleUseCaseImpl(
     private val articleRepository: ArticleRepository,
+    private val articleQueryRepository: ArticleQueryRepository,
     private val userProviderService: UserProviderService,
     private val followRelationService: FollowRelationService
 ) : ViewArticleUseCase {
@@ -23,6 +27,21 @@ class ViewArticleUseCaseImpl(
         return article.toDto(
             author = author,
             following = followRelationService.isFollowing(followerId = userSession.userId, followeeId = author.id)
+        )
+    }
+
+    override fun getArticles(getArticleQuery: GetArticleQuery, userSession: UserSession): List<ArticleDto> {
+        return articleQueryRepository.findByCondition(
+            articleCondition = ArticleCondition(
+                userId = userSession.userId,
+                tag = getArticleQuery.tag,
+                authorId = getArticleQuery.author?.let { userProviderService.getUser(it).id },
+                favorited = getArticleQuery.favorited
+            ),
+            pageSpec = PageSpec(
+                limit = getArticleQuery.limit,
+                offset = getArticleQuery.offset
+            )
         )
     }
 }

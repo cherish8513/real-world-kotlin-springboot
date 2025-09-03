@@ -19,3 +19,24 @@ data class AuthorDto(
     val image: String?,
     val following: Boolean
 )
+
+data class GetArticleQuery(
+    val tag: String?,
+    val author: String?,
+    val favorited: Boolean = false,
+    val limit: Long = 20,
+    val offset: Long = 0
+)
+
+data class CreateArticleCommand(
+    val title: String,
+    val description: String,
+    val body: String,
+    val tagList: List<String>? = null
+)
+
+data class UpdateArticleCommand(
+    val title: String? = null,
+    val description: String? = null,
+    val body: String? = null
+)
