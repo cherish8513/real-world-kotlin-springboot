@@ -23,7 +23,7 @@ data class AuthorDto(
 data class GetArticleQuery(
     val tag: String?,
     val author: String?,
-    val favorited: Boolean = false,
+    val favorited: String?,
     val limit: Long = 20,
     val offset: Long = 0
 )

@@ -7,22 +7,33 @@ import com.joo.real_world.article.application.query.ArticleQueryRepository
 import com.joo.real_world.article.application.query.dto.ArticleCondition
 import com.joo.real_world.article.infrastructure.QArticleEntity.articleEntity
 import com.joo.real_world.article.infrastructure.QArticleTagEntity.articleTagEntity
-import com.joo.real_world.article.infrastructure.QCommentEntity.*
+import com.joo.real_world.article.infrastructure.QCommentEntity.commentEntity
+import com.joo.real_world.article.infrastructure.QFavoriteEntity.*
 import com.joo.real_world.article.infrastructure.QTagEntity.tagEntity
 import com.joo.real_world.common.application.query.PageSpec
 import com.joo.real_world.common.util.assertNotNull
 import com.joo.real_world.follow.infrastructure.QFollowEntity.followEntity
 import com.joo.real_world.user.infrastructure.QUserEntity.userEntity
 import com.querydsl.core.annotations.QueryProjection
+import com.querydsl.core.types.dsl.CaseBuilder
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.stereotype.Repository
-import kotlin.collections.map
+
 
 @Repository
 class ArticleQdslRepository(
-    private val query: JPAQueryFactory
+    private val query: JPAQueryFactory,
+    private val favoriteJpaRepository: IFavoriteJpaRepository,
 ) : ArticleQueryRepository {
     override fun findBySlugAndUserId(slug: String, userId: Long): ArticleDto {
+       return findArticle(slug = slug, userId = userId)
+    }
+
+    override fun findByArticleIdAndUserId(articleId: Long, userId: Long): ArticleDto {
+        return findArticle(articleId = articleId, userId = userId)
+    }
+
+    private fun findArticle(articleId: Long? = null, slug: String? = null, userId: Long): ArticleDto {
         val article = query
             .select(
                 QArticleQDto(
@@ -33,21 +44,23 @@ class ArticleQdslRepository(
                     articleEntity.body,
                     articleEntity.createdAt.stringValue(),
                     articleEntity.updatedAt.stringValue(),
-                    articleEntity.favorited,
-                    articleEntity.favoritesCount,
                     QAuthorQDto(
                         userEntity.id,
                         userEntity.username,
                         userEntity.bio,
                         userEntity.image,
-                        followEntity.isNotNull
+                        CaseBuilder().`when`(followEntity.id.isNotNull).then(true).otherwise(false)
                     )
                 )
             )
             .from(articleEntity)
             .join(userEntity).on(userEntity.id.eq(articleEntity.authorId))
+            .leftJoin(favoriteEntity).on(favoriteEntity.userId.eq(userEntity.id))
             .leftJoin(followEntity).on(followEntity.id.followerId.eq(userId).and(followEntity.id.followeeId.eq(articleEntity.authorId)))
-            .where(articleEntity.slug.eq(slug))
+            .where(
+                slug?.let { articleEntity.slug.eq(it) },
+                articleId?.let { articleEntity.id.eq(it) }
+            )
             .fetchOne()
             .assertNotNull()
 
@@ -61,8 +74,8 @@ class ArticleQdslRepository(
             tagList = tags.map { it.name },
             createdAt = article.createdAt,
             updatedAt = article.updatedAt,
-            favorited = article.favorited,
-            favoritesCount = article.favoritesCount,
+            favorited = favoriteJpaRepository.existsByArticleIdAndUserId(articleId = article.articleId, userId = userId),
+            favoritesCount = favoriteJpaRepository.countByArticleId(article.articleId),
             author = AuthorDto(
                 username = article.author.username,
                 bio = article.author.bio,
@@ -80,7 +93,15 @@ class ArticleQdslRepository(
         return findArticlesByCondition(articleCondition, pageSpec, true)
     }
 
+    override fun findComment(commentId: Long, userId: Long): CommentDto {
+        return findComments(commentId = commentId, userId = userId)[0]
+    }
+
     override fun findComments(slug: String, userId: Long): List<CommentDto> {
+        return findComments(commentId = null, slug = slug, userId = userId)
+    }
+
+    private fun findComments(commentId: Long? = null, slug: String? = null, userId: Long): List<CommentDto> {
         return query
             .select(
                 QCommentQDto(
@@ -93,7 +114,7 @@ class ArticleQdslRepository(
                         userEntity.username,
                         userEntity.bio,
                         userEntity.image,
-                        followEntity.isNotNull
+                        CaseBuilder().`when`(followEntity.id.isNotNull).then(true).otherwise(false)
                     )
                 )
             )
@@ -101,7 +122,10 @@ class ArticleQdslRepository(
             .join(articleEntity).on(articleEntity.id.eq(commentEntity.articleId))
             .join(userEntity).on(userEntity.id.eq(commentEntity.authorId))
             .leftJoin(followEntity).on(followEntity.id.followerId.eq(userId).and(followEntity.id.followeeId.eq(commentEntity.authorId)))
-            .where(articleEntity.slug.eq(slug))
+            .where(
+                slug?.let { articleEntity.slug.eq(it) },
+                commentId?.let { commentEntity.id.eq(it) }
+            )
             .orderBy(commentEntity.createdAt.desc())
             .fetch()
             .map { CommentDto(
@@ -133,8 +157,8 @@ class ArticleQdslRepository(
                 tagList = tagMap[it.articleId]?.map { tag -> tag.name },
                 createdAt = it.createdAt,
                 updatedAt = it.updatedAt,
-                favorited = it.favorited,
-                favoritesCount = it.favoritesCount,
+                favorited = favoriteJpaRepository.existsByArticleIdAndUserId(articleId = it.articleId, userId = articleCondition.userId),
+                favoritesCount = favoriteJpaRepository.countByArticleId(it.articleId),
                 author = AuthorDto(
                     username = it.author.username,
                     bio = it.author.bio,
@@ -150,7 +174,7 @@ class ArticleQdslRepository(
         pageSpec: PageSpec,
         onlyFollow: Boolean
     ): List<ArticleQDto> {
-        val baseQuery = query
+        var baseQuery = query
             .select(
                 QArticleQDto(
                     articleEntity.id,
@@ -160,14 +184,12 @@ class ArticleQdslRepository(
                     articleEntity.body,
                     articleEntity.createdAt.stringValue(),
                     articleEntity.updatedAt.stringValue(),
-                    articleEntity.favorited,
-                    articleEntity.favoritesCount,
                     QAuthorQDto(
                         userEntity.id,
                         userEntity.username,
                         userEntity.bio,
                         userEntity.image,
-                        followEntity.isNotNull
+                        CaseBuilder().`when`(followEntity.id.isNotNull).then(true).otherwise(false)
                     )
                 )
             )
@@ -175,32 +197,35 @@ class ArticleQdslRepository(
             .join(userEntity).on(userEntity.id.eq(articleEntity.authorId))
 
         if (onlyFollow) {
-            baseQuery.join(followEntity).on(
+            baseQuery = baseQuery.join(followEntity).on(
                 followEntity.id.followerId.eq(articleCondition.userId)
                     .and(followEntity.id.followeeId.eq(articleEntity.authorId))
             )
         }
         else {
-            baseQuery.leftJoin(followEntity).on(
+            baseQuery = baseQuery.leftJoin(followEntity).on(
                 followEntity.id.followerId.eq(articleCondition.userId)
                     .and(followEntity.id.followeeId.eq(articleEntity.authorId))
             )
         }
 
+        if (articleCondition.favoriteByUserId != null) {
+            baseQuery = baseQuery
+                .join(favoriteEntity).on(
+                    favoriteEntity.userId.eq(articleCondition.favoriteByUserId)
+                        .and(favoriteEntity.articleId.eq(articleEntity.id))
+                )
+        }
+
         if (articleCondition.tag != null) {
-            baseQuery
+            baseQuery = baseQuery
                 .join(articleTagEntity).on(articleTagEntity.article.id.eq(articleEntity.id))
                 .join(tagEntity).on(tagEntity.id.eq(articleTagEntity.tag.id))
                 .where(tagEntity.name.eq(articleCondition.tag))
         }
 
         return baseQuery
-            .where(
-                articleCondition.authorId?.let { userEntity.id.eq(it) },
-                articleCondition.favorited.let { fav ->
-                    if (fav) articleEntity.favorited.isTrue else null
-                }
-            )
+            .where(articleCondition.authorId?.let { userEntity.id.eq(it) },)
             .offset(pageSpec.offset)
             .limit(pageSpec.limit)
             .orderBy(articleEntity.createdAt.desc())
@@ -231,8 +256,6 @@ data class ArticleQDto @QueryProjection constructor(
     val body: String,
     val createdAt: String,
     val updatedAt: String,
-    val favorited: Boolean,
-    val favoritesCount: Int,
     val author: AuthorQDto
 )
 

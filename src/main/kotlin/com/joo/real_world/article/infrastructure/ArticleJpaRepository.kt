@@ -18,39 +18,16 @@ class ArticleJpaRepository(
     private val articleJpaRepository: IArticleJpaRepository,
     private val tagJpaRepository: TagJpaRepository
 ) : ArticleRepository {
-    override fun save(article: Article): Article {
-        val baseSlug = article.slug.value
-        var newSlug = baseSlug
-        var counter = 1
-        while (articleJpaRepository.findBySlug(newSlug) != null && counter <= 9) {
-            newSlug = "$baseSlug-$counter"
-            counter++
-        }
-
-        val articleEntity = article.toEntity(slug = newSlug)
-
+    override fun save(article: Article): ArticleId {
+        val articleEntity = article.toEntity()
 
         if (article.tags.isNotEmpty()) {
             val tagNames = article.tags.map { it.value }
             val tags = tagJpaRepository.findOrCreateTags(tagNames)
-
             tags.forEach { articleEntity.addTag(it) }
         }
 
-        if (article.comments.isNotEmpty()) {
-            articleEntity.comments.addAll(
-                article.comments.map {
-                    CommentEntity(
-                        id = it.id.assertNotNull().value,
-                        body = it.body.value,
-                        articleId = article.id.assertNotNull().value,
-                        authorId = it.authorId.value
-                    )
-                }
-            )
-        }
-
-        return articleJpaRepository.save(articleEntity).toDomain()
+        return ArticleId(articleJpaRepository.save(articleEntity).id.assertNotNull())
     }
 
     override fun findBySlug(slug: Slug): Article? {

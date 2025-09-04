@@ -4,6 +4,8 @@ import com.joo.real_world.article.domain.Article
 import com.joo.real_world.article.domain.ArticleRepository
 import com.joo.real_world.article.domain.Comment
 import com.joo.real_world.article.domain.vo.*
+import com.joo.real_world.article.infrastructure.CommentRepository
+import com.joo.real_world.article.infrastructure.FavoriteRepository
 import com.joo.real_world.common.exception.CustomExceptionType
 import com.joo.real_world.common.util.assertNotNull
 import com.joo.real_world.security.infrastructure.UserSession
@@ -16,22 +18,32 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class ArticleCommandUseCaseImpl(
     private val articleRepository: ArticleRepository,
-    private val userProviderService: UserProviderService,
+    private val commentRepository: CommentRepository,
+    private val favoriteRepository: FavoriteRepository
 ) : ArticleCommandUseCase {
-    override fun createArticle(createArticleCommand: CreateArticleCommand, userSession: UserSession): ArticleDto {
-        val author = userProviderService.getUser(userSession.userId)
+    override fun createArticle(createArticleCommand: CreateArticleCommand, userSession: UserSession): Long {
+        val title = Title(createArticleCommand.title)
+        val baseSlug = Slug.fromTitle(Title(createArticleCommand.title))
+        var newSlug = baseSlug
+        var counter = 1
+        while (articleRepository.findBySlug(newSlug) != null && counter <= 9) {
+            newSlug = Slug("$baseSlug-$counter")
+            counter++
+        }
+
         return articleRepository.save(
             Article.create(
-                title = Title(createArticleCommand.title),
+                slug = newSlug,
+                title = title,
                 description = Description(createArticleCommand.description),
                 body = Body(createArticleCommand.body),
                 tags = createArticleCommand.tagList?.map { Tag(it) },
-                authorId = UserId(author.id)
+                authorId = UserId(userSession.userId)
             )
-        ).toDto(author = author, following = false)
+        ).value
     }
 
-    override fun updateArticle(updateArticleCommand: UpdateArticleCommand, userSession: UserSession): ArticleDto {
+    override fun updateArticle(updateArticleCommand: UpdateArticleCommand, userSession: UserSession): Long {
         val article = articleRepository.findBySlug(Slug(updateArticleCommand.slug)).assertNotNull(CustomExceptionType.NOT_FOUND_SLUG)
 
         val changedArticle = article.change(
@@ -41,8 +53,7 @@ class ArticleCommandUseCaseImpl(
             body = updateArticleCommand.body?.let { Body(it) }
         )
 
-        val author = userProviderService.getUser(userSession.userId)
-        return articleRepository.save(changedArticle).toDto(author = author, following = false)
+        return articleRepository.save(changedArticle).value
     }
 
     override fun deleteArticle(slug: String, userSession: UserSession) {
@@ -51,17 +62,27 @@ class ArticleCommandUseCaseImpl(
         articleRepository.delete(article.id.assertNotNull())
     }
 
-    override fun addComment(addCommentCommand: AddCommentCommand, userSession: UserSession): CommentDto {
+    override fun addComment(addCommentCommand: AddCommentCommand, userSession: UserSession): Long {
         val article = articleRepository.findBySlug(Slug(addCommentCommand.slug)).assertNotNull(CustomExceptionType.NOT_FOUND_SLUG)
-        val author = userProviderService.getUser(userSession.userId)
-        val comment = article.addComment(Comment(authorId = UserId(author.id), body = Body(addCommentCommand.body)))
-        articleRepository.save(article)
-        return comment.toDto(author = author, following = false)
+        val comment = article.addComment(authorId = UserId(userSession.userId), body = Body(addCommentCommand.body))
+        return commentRepository.save(comment).value
     }
 
     override fun deleteComment(slug: String, commentId: Long, userSession: UserSession) {
         val article = articleRepository.findBySlug(Slug(slug)).assertNotNull(CustomExceptionType.NOT_FOUND_SLUG)
         article.removeComment(CommentId(commentId))
         articleRepository.save(article)
+    }
+
+    override fun favoriteArticle(slug: String, userSession: UserSession): Long {
+        val article = articleRepository.findBySlug(Slug(slug)).assertNotNull(CustomExceptionType.NOT_FOUND_SLUG)
+        val favorite = article.favorite(UserId(userSession.userId))
+        return favoriteRepository.save(favorite).value
+    }
+
+    override fun unFavoriteArticle(slug: String, userSession: UserSession): Long {
+        val article = articleRepository.findBySlug(Slug(slug)).assertNotNull(CustomExceptionType.NOT_FOUND_SLUG)
+        article.unfavorite(UserId(userSession.userId))
+        return articleRepository.save(article).value
     }
 }

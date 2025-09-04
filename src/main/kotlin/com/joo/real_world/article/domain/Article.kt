@@ -2,6 +2,7 @@ package com.joo.real_world.article.domain
 
 import com.joo.real_world.article.domain.vo.*
 import com.joo.real_world.common.exception.CustomExceptionType
+import com.joo.real_world.common.util.assertNotNull
 import com.joo.real_world.user.domain.vo.UserId
 import java.time.LocalDateTime
 
@@ -12,15 +13,12 @@ class Article(
     val description: Description,
     val body: Body,
     val tags: List<Tag> = emptyList(),
-    val favorited: Boolean = false,
-    val favoritesCount: Int = 0,
     val authorId: UserId,
+    val comments: MutableList<Comment> = mutableListOf(),
+    val favorites: MutableSet<Favorite> = mutableSetOf(),
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now()
 ) {
-    private val _comments: MutableList<Comment> = mutableListOf()
-    val comments: List<Comment> get() = _comments.toList()
-
     fun change(authorId: UserId, title: Title? = null, description: Description? = null, body: Body? = null): Article {
         if (this.authorId.value != authorId.value) {
             throw CustomExceptionType.BAD_REQUEST.toException("기사의 작성자가 아닙니다")
@@ -32,8 +30,6 @@ class Article(
             description = description ?: this.description,
             body = body ?: this.body,
             tags = this.tags,
-            favorited = this.favorited,
-            favoritesCount = this.favoritesCount,
             authorId = this.authorId,
             createdAt = this.createdAt,
             updatedAt = LocalDateTime.now()
@@ -41,23 +37,46 @@ class Article(
     }
 
 
-    fun addComment(comment: Comment): Comment {
-        _comments.add(comment)
+    fun addComment(authorId: UserId, body: Body): Comment {
+        val comment = Comment(
+            articleId = this.id.assertNotNull(),
+            authorId = authorId,
+            body = body
+        )
+        comments.add(comment)
         return comment
     }
 
     fun removeComment(commentId: CommentId) {
-        _comments.removeIf { it.id == commentId }
+        comments.removeIf { it.id == commentId }
     }
 
     fun delete(authorId: UserId) {
         if (this.authorId.value != authorId.value) {
-            throw CustomExceptionType.BAD_REQUEST.toException("기사의 작성자가 아닙니다")
+            throw CustomExceptionType.BAD_REQUEST.toException("기사의 작성자가 아닙니다.")
         }
+    }
+
+    fun favorite(userId: UserId): Favorite {
+        val favorite = Favorite(userId = userId, articleId = this.id.assertNotNull())
+        if (favorites.any { it.userId == userId }) {
+            throw CustomExceptionType.BAD_REQUEST.toException("이미 Favorite에 등록되어 있습니다.")
+        }
+        favorites.add(favorite)
+        return favorite
+    }
+
+    fun unfavorite(userId: UserId) {
+        favorites.remove(Favorite(userId = userId, articleId = this.id.assertNotNull()))
+    }
+
+    fun isFavorite(userId: UserId): Boolean {
+        return favorites.any { it.userId == userId }
     }
 
     companion object {
         fun create(
+            slug: Slug,
             title: Title,
             description: Description,
             body: Body,
@@ -65,7 +84,7 @@ class Article(
             authorId: UserId
         ): Article {
             return Article(
-                slug = Slug.fromTitle(title),
+                slug = slug,
                 title = title,
                 description = description,
                 body = body,

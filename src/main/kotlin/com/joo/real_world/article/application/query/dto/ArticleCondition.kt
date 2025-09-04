@@ -4,5 +4,5 @@ data class ArticleCondition(
     val userId: Long,
     val tag: String? = null,
     val authorId: Long? = null,
-    val favorited: Boolean = false,
+    val favoriteByUserId: Long? = null,
 )

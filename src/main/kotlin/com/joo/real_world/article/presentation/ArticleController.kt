@@ -63,14 +63,16 @@ class ArticleController(
         @RequestBody createArticleRequest: CreateArticleRequest,
         @AuthenticationPrincipal userSession: UserSession
     ): ArticleResponse {
-        return articleCommandUseCase.createArticle(
+        val articleId = articleCommandUseCase.createArticle(
             CreateArticleCommand(
                 title = createArticleRequest.createArticleRequestDto.title,
                 description = createArticleRequest.createArticleRequestDto.description,
                 body = createArticleRequest.createArticleRequestDto.body,
                 tagList = createArticleRequest.createArticleRequestDto.tagList
             ), userSession
-        ).toResponse()
+        )
+
+        return articleQueryUseCase.getArticle(articleId = articleId, userSession).toResponse()
     }
 
     @PutMapping("/{slug}")
@@ -79,14 +81,16 @@ class ArticleController(
         @PathVariable slug: String,
         @AuthenticationPrincipal userSession: UserSession
     ): ArticleResponse {
-        return articleCommandUseCase.updateArticle(
+        val articleId = articleCommandUseCase.updateArticle(
             UpdateArticleCommand(
                 slug = slug,
                 title = updateArticleRequest.updateArticleRequestDto.title,
                 description = updateArticleRequest.updateArticleRequestDto.description,
                 body = updateArticleRequest.updateArticleRequestDto.body
             ), userSession
-        ).toResponse()
+        )
+
+        return articleQueryUseCase.getArticle(articleId = articleId, userSession).toResponse()
     }
 
     @DeleteMapping("/{slug}")
@@ -103,7 +107,9 @@ class ArticleController(
         @PathVariable slug: String,
         @AuthenticationPrincipal userSession: UserSession
     ): CommentResponse {
-        return articleCommandUseCase.addComment(AddCommentCommand(slug = slug, body = addCommentRequest.addCommentRequestDto.body), userSession).toResponse()
+        val commentId = articleCommandUseCase.addComment(AddCommentCommand(slug = slug, body = addCommentRequest.addCommentRequestDto.body), userSession)
+
+        return articleQueryUseCase.getComment(commentId = commentId, userSession = userSession).toResponse()
     }
 
     @PostMapping("/{slug}/comments/{id}")
@@ -121,5 +127,23 @@ class ArticleController(
         @AuthenticationPrincipal userSession: UserSession
     ): MultipleCommentResponse {
         return articleQueryUseCase.getComments(slug, userSession).toResponse()
+    }
+
+    @PostMapping("/{slug}/favorite")
+    fun favoriteArticle(
+        @PathVariable slug: String,
+        @AuthenticationPrincipal userSession: UserSession
+    ): ArticleResponse {
+        val articleId = articleCommandUseCase.favoriteArticle(slug, userSession)
+        return articleQueryUseCase.getArticle(articleId = articleId, userSession).toResponse()
+    }
+
+    @DeleteMapping("/{slug}/favorite")
+    fun unFavoriteArticle(
+        @PathVariable slug: String,
+        @AuthenticationPrincipal userSession: UserSession
+    ): ArticleResponse {
+        val articleId = articleCommandUseCase.unFavoriteArticle(slug, userSession)
+        return articleQueryUseCase.getArticle(articleId = articleId, userSession).toResponse()
     }
 }

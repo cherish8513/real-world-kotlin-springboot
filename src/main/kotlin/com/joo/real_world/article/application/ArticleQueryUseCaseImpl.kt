@@ -18,13 +18,17 @@ class ArticleQueryUseCaseImpl(
         return articleQueryRepository.findBySlugAndUserId(slug, userSession.userId)
     }
 
+    override fun getArticle(articleId: Long, userSession: UserSession): ArticleDto {
+        return articleQueryRepository.findByArticleIdAndUserId(articleId, userSession.userId)
+    }
+
     override fun getArticles(getArticleQuery: GetArticleQuery, userSession: UserSession): List<ArticleDto> {
         return articleQueryRepository.findByCondition(
             articleCondition = ArticleCondition(
                 userId = userSession.userId,
                 tag = getArticleQuery.tag,
                 authorId = getArticleQuery.author?.let { userProviderService.getUser(it).id },
-                favorited = getArticleQuery.favorited
+                favoriteByUserId = getArticleQuery.favorited?.let { userProviderService.getUser(it).id }
             ),
             pageSpec = PageSpec(
                 limit = getArticleQuery.limit,
@@ -39,13 +43,17 @@ class ArticleQueryUseCaseImpl(
                 userId = userSession.userId,
                 tag = getArticleQuery.tag,
                 authorId = getArticleQuery.author?.let { userProviderService.getUser(it).id },
-                favorited = getArticleQuery.favorited
+                favoriteByUserId = getArticleQuery.favorited?.let { userProviderService.getUser(it).id }
             ),
             pageSpec = PageSpec(
                 limit = getArticleQuery.limit,
                 offset = getArticleQuery.offset
             )
         )
+    }
+
+    override fun getComment(commentId: Long, userSession: UserSession): CommentDto {
+        return articleQueryRepository.findComment(commentId, userSession.userId)
     }
 
     override fun getComments(slug: String, userSession: UserSession): List<CommentDto> {

@@ -2,6 +2,7 @@ package com.joo.real_world.article.infrastructure
 
 import com.joo.real_world.article.application.query.dto.ArticleCondition
 import com.joo.real_world.article.domain.Article
+import com.joo.real_world.article.domain.Favorite
 import com.joo.real_world.article.domain.vo.*
 import com.joo.real_world.common.application.query.PageSpec
 import com.joo.real_world.common.util.assertNotNull
@@ -24,7 +25,8 @@ class ArticleQdslRepositoryTest @Autowired constructor(
     private val articleRepository: ArticleJpaRepository,
     private val userRepository: UserJpaRepository,
     private val followRepository: FollowJpaRepository,
-    private val articleQueryRepository: ArticleQdslRepository
+    private val articleQueryRepository: ArticleQdslRepository,
+    private val favoriteRepository: FavoriteRepository
 ) {
 
     private lateinit var author: User
@@ -39,14 +41,14 @@ class ArticleQdslRepositoryTest @Autowired constructor(
         author = userRepository.save(User(username = "author", email = Email.of("a@test.com"), password = Password.of("pw")))
         follower = userRepository.save(User(username = "follower", email = Email.of("f@test.com"), password = Password.of("pw")))
 
-        articleRepository.save(
+        val articleId = articleRepository.save(
             Article(
                 slug = Slug(slug1),
                 title = Title(title1),
                 description = Description("desc1"),
                 body = Body("body1"),
                 authorId = author.id.assertNotNull(),
-                tags = listOf(Tag(tag1))
+                tags = listOf(Tag(tag1)),
             )
         )
         articleRepository.save(
@@ -56,8 +58,7 @@ class ArticleQdslRepositoryTest @Autowired constructor(
                 description = Description("desc2"),
                 body = Body("body2"),
                 authorId = author.id.assertNotNull(),
-                tags = listOf(Tag(tag2)),
-                favorited = true
+                tags = listOf(Tag(tag2))
             )
         )
 
@@ -67,6 +68,8 @@ class ArticleQdslRepositoryTest @Autowired constructor(
                 followeeId = author.id.assertNotNull()
             )
         )
+
+        favoriteRepository.save(Favorite(articleId = articleId.assertNotNull(), userId = follower.id.assertNotNull()))
     }
 
     @Test
@@ -80,12 +83,11 @@ class ArticleQdslRepositoryTest @Autowired constructor(
 
     @Test
     fun `favorited 조건으로 조회`() {
-        val condition = ArticleCondition(userId = author.id.assertNotNull().value, favorited = true)
+        val condition = ArticleCondition(userId = author.id.assertNotNull().value, favoriteByUserId = follower.id?.value)
         val result = articleQueryRepository.findByCondition(condition, PageSpec())
 
         assertThat(result).hasSize(1)
-        assertThat(result[0].favorited).isTrue()
-        assertThat(result[0].slug).isEqualTo("slug-2")
+        assertThat(result[0].slug).isEqualTo("slug-1")
     }
 
     @Test
