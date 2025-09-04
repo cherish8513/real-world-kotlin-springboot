@@ -36,7 +36,18 @@ data class CreateArticleCommand(
 )
 
 data class UpdateArticleCommand(
+    val slug: String,
     val title: String? = null,
     val description: String? = null,
     val body: String? = null
+)
+
+data class AddCommentCommand(
+    val slug: String,
+    val body: String
+)
+
+data class UpdateCommentCommand(
+    val slug: String,
+    val body: String
 )

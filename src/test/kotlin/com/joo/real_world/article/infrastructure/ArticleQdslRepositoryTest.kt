@@ -24,11 +24,15 @@ class ArticleQdslRepositoryTest @Autowired constructor(
     private val articleRepository: ArticleJpaRepository,
     private val userRepository: UserJpaRepository,
     private val followRepository: FollowJpaRepository,
-    private val sut: ArticleQdslRepository
+    private val articleQueryRepository: ArticleQdslRepository
 ) {
 
     private lateinit var author: User
     private lateinit var follower: User
+    private val tag1 = "kotlin"
+    private val tag2 = "spring"
+    private val slug1 = "slug-1"
+    private val title1 = "title1"
 
     @BeforeEach
     fun setup() {
@@ -37,12 +41,12 @@ class ArticleQdslRepositoryTest @Autowired constructor(
 
         articleRepository.save(
             Article(
-                slug = Slug("slug-1"),
-                title = Title("title1"),
+                slug = Slug(slug1),
+                title = Title(title1),
                 description = Description("desc1"),
                 body = Body("body1"),
                 authorId = author.id.assertNotNull(),
-                tags = listOf(Tag("Kotlin"))
+                tags = listOf(Tag(tag1))
             )
         )
         articleRepository.save(
@@ -52,7 +56,7 @@ class ArticleQdslRepositoryTest @Autowired constructor(
                 description = Description("desc2"),
                 body = Body("body2"),
                 authorId = author.id.assertNotNull(),
-                tags = listOf(Tag("Spring")),
+                tags = listOf(Tag(tag2)),
                 favorited = true
             )
         )
@@ -68,7 +72,7 @@ class ArticleQdslRepositoryTest @Autowired constructor(
     @Test
     fun `authorId 조건으로 조회`() {
         val condition = ArticleCondition(userId = author.id.assertNotNull().value, authorId = author.id?.value)
-        val result = sut.findByCondition(condition, PageSpec())
+        val result = articleQueryRepository.findByCondition(condition, PageSpec())
 
         assertThat(result).hasSize(2)
         assertThat(result.all { it.author.username == "author" }).isTrue()
@@ -77,7 +81,7 @@ class ArticleQdslRepositoryTest @Autowired constructor(
     @Test
     fun `favorited 조건으로 조회`() {
         val condition = ArticleCondition(userId = author.id.assertNotNull().value, favorited = true)
-        val result = sut.findByCondition(condition, PageSpec())
+        val result = articleQueryRepository.findByCondition(condition, PageSpec())
 
         assertThat(result).hasSize(1)
         assertThat(result[0].favorited).isTrue()
@@ -87,7 +91,7 @@ class ArticleQdslRepositoryTest @Autowired constructor(
     @Test
     fun `팔로우 여부 확인`() {
         val condition = ArticleCondition(userId = follower.id.assertNotNull().value, authorId = author.id?.value)
-        val result = sut.findByCondition(condition, PageSpec())
+        val result = articleQueryRepository.findByCondition(condition, PageSpec())
 
         assertThat(result).isNotEmpty
         assertThat(result[0].author.following).isTrue()
@@ -95,17 +99,17 @@ class ArticleQdslRepositoryTest @Autowired constructor(
 
     @Test
     fun `태그가 잘 매핑되는지`() {
-        val condition = ArticleCondition(userId = author.id.assertNotNull().value)
-        val result = sut.findByCondition(condition, PageSpec())
+        val condition = ArticleCondition(userId = author.id.assertNotNull().value, tag = tag1)
+        val result = articleQueryRepository.findByCondition(condition, PageSpec())
 
         val tagLists = result.map { it.tagList ?: emptyList() }.flatten()
-        assertThat(tagLists.size).isEqualTo(2)
+        assertThat(tagLists[0]).isEqualTo(tag1)
     }
 
     @Test
     fun `페이징 적용`() {
         val condition = ArticleCondition(userId = author.id.assertNotNull().value)
-        val result = sut.findByCondition(condition, PageSpec(1, 0))
+        val result = articleQueryRepository.findByCondition(condition, PageSpec(1, 0))
 
         assertThat(result).hasSize(1)
     }
@@ -113,8 +117,18 @@ class ArticleQdslRepositoryTest @Autowired constructor(
     @Test
     fun `조건에 맞는 글이 없을 때 emptyList`() {
         val condition = ArticleCondition(userId = author.id.assertNotNull().value, authorId = -999L)
-        val result = sut.findByCondition(condition, PageSpec())
+        val result = articleQueryRepository.findByCondition(condition, PageSpec())
 
         assertThat(result).isEmpty()
+    }
+
+    @Test
+    fun `slug로 조회`() {
+        val result = articleQueryRepository.findBySlugAndUserId(userId = follower.id.assertNotNull().value, slug = slug1)
+
+        assertThat(result.author.following).isTrue
+        assertThat(result.tagList).isNotEmpty
+        assertThat(result.title).isEqualTo(title1)
+
     }
 }

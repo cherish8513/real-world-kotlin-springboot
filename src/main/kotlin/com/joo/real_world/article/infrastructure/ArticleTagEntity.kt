@@ -9,10 +9,10 @@ class ArticleTagEntity(
     val id: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "article_id")
+    @JoinColumn(name = "articleId")
     val article: ArticleEntity,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tag_id")
+    @JoinColumn(name = "tagId")
     val tag: TagEntity
 )

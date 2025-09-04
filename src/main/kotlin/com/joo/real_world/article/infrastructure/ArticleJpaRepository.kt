@@ -1,13 +1,9 @@
 package com.joo.real_world.article.infrastructure
 
-import com.joo.real_world.article.application.ArticleDto
-import com.joo.real_world.article.application.query.ArticleQueryRepository
-import com.joo.real_world.article.application.query.dto.ArticleCondition
 import com.joo.real_world.article.domain.Article
 import com.joo.real_world.article.domain.ArticleRepository
 import com.joo.real_world.article.domain.vo.ArticleId
 import com.joo.real_world.article.domain.vo.Slug
-import com.joo.real_world.common.application.query.PageSpec
 import com.joo.real_world.common.util.assertNotNull
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.repository.findByIdOrNull
@@ -34,13 +30,24 @@ class ArticleJpaRepository(
         val articleEntity = article.toEntity(slug = newSlug)
 
 
-        if (article.tags != null) {
+        if (article.tags.isNotEmpty()) {
             val tagNames = article.tags.map { it.value }
             val tags = tagJpaRepository.findOrCreateTags(tagNames)
 
             tags.forEach { articleEntity.addTag(it) }
+        }
 
-            articleJpaRepository.save(articleEntity)
+        if (article.comments.isNotEmpty()) {
+            articleEntity.comments.addAll(
+                article.comments.map {
+                    CommentEntity(
+                        id = it.id.assertNotNull().value,
+                        body = it.body.value,
+                        articleId = article.id.assertNotNull().value,
+                        authorId = it.authorId.value
+                    )
+                }
+            )
         }
 
         return articleJpaRepository.save(articleEntity).toDomain()

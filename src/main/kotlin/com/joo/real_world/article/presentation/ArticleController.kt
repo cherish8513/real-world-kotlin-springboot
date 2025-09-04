@@ -1,25 +1,27 @@
 package com.joo.real_world.article.presentation
 
 import com.joo.real_world.article.application.*
+import com.joo.real_world.article.presentation.request.AddCommentRequest
 import com.joo.real_world.article.presentation.request.CreateArticleRequest
 import com.joo.real_world.article.presentation.request.GetArticleWithFilterRequest
 import com.joo.real_world.article.presentation.request.UpdateArticleRequest
 import com.joo.real_world.article.presentation.response.ArticleResponse
+import com.joo.real_world.article.presentation.response.CommentResponse
+import com.joo.real_world.article.presentation.response.MultipleCommentResponse
 import com.joo.real_world.common.config.ApiController
 import com.joo.real_world.security.infrastructure.UserSession
-import org.springframework.data.repository.query.Param
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
 @ApiController
 @RequestMapping("/articles")
 class ArticleController(
-    private val viewArticleUseCase: ViewArticleUseCase,
-    private val managementArticleUseCase: ManagementArticleUseCase
+    private val articleQueryUseCase: ArticleQueryUseCase,
+    private val articleCommandUseCase: ArticleCommandUseCase
 ) {
     @GetMapping("/{slug}")
     fun getArticle(@PathVariable slug: String, @AuthenticationPrincipal userSession: UserSession): ArticleResponse {
-        return viewArticleUseCase.getArticle(slug, userSession).toResponse()
+        return articleQueryUseCase.getArticle(slug, userSession).toResponse()
     }
 
     @GetMapping
@@ -27,7 +29,24 @@ class ArticleController(
         @ModelAttribute getArticleWithFilterRequest: GetArticleWithFilterRequest,
         @AuthenticationPrincipal userSession: UserSession
     ): List<ArticleResponse> {
-        return viewArticleUseCase.getArticles(
+        return articleQueryUseCase.getArticles(
+            GetArticleQuery(
+                tag = getArticleWithFilterRequest.tag,
+                author = getArticleWithFilterRequest.author,
+                favorited = getArticleWithFilterRequest.favorited,
+                limit = getArticleWithFilterRequest.limit,
+                offset = getArticleWithFilterRequest.offset,
+            ),
+            userSession
+        ).map { it.toResponse() }
+    }
+
+    @GetMapping("/feed")
+    fun getFeedArticles(
+        @ModelAttribute getArticleWithFilterRequest: GetArticleWithFilterRequest,
+        @AuthenticationPrincipal userSession: UserSession
+    ): List<ArticleResponse> {
+        return articleQueryUseCase.getFeedArticles(
             GetArticleQuery(
                 tag = getArticleWithFilterRequest.tag,
                 author = getArticleWithFilterRequest.author,
@@ -44,7 +63,7 @@ class ArticleController(
         @RequestBody createArticleRequest: CreateArticleRequest,
         @AuthenticationPrincipal userSession: UserSession
     ): ArticleResponse {
-        return managementArticleUseCase.createArticle(
+        return articleCommandUseCase.createArticle(
             CreateArticleCommand(
                 title = createArticleRequest.createArticleRequestDto.title,
                 description = createArticleRequest.createArticleRequestDto.description,
@@ -60,12 +79,13 @@ class ArticleController(
         @PathVariable slug: String,
         @AuthenticationPrincipal userSession: UserSession
     ): ArticleResponse {
-        return managementArticleUseCase.updateArticle(
+        return articleCommandUseCase.updateArticle(
             UpdateArticleCommand(
+                slug = slug,
                 title = updateArticleRequest.updateArticleRequestDto.title,
                 description = updateArticleRequest.updateArticleRequestDto.description,
                 body = updateArticleRequest.updateArticleRequestDto.body
-            ), slug, userSession
+            ), userSession
         ).toResponse()
     }
 
@@ -74,6 +94,32 @@ class ArticleController(
         @PathVariable slug: String,
         @AuthenticationPrincipal userSession: UserSession
     ) {
-        return managementArticleUseCase.deleteArticle(slug, userSession)
+        return articleCommandUseCase.deleteArticle(slug, userSession)
+    }
+
+    @PostMapping("/{slug}/comments")
+    fun addComment(
+        @RequestBody addCommentRequest: AddCommentRequest,
+        @PathVariable slug: String,
+        @AuthenticationPrincipal userSession: UserSession
+    ): CommentResponse {
+        return articleCommandUseCase.addComment(AddCommentCommand(slug = slug, body = addCommentRequest.addCommentRequestDto.body), userSession).toResponse()
+    }
+
+    @PostMapping("/{slug}/comments/{id}")
+    fun deleteComment(
+        @PathVariable slug: String,
+        @PathVariable id: Long,
+        @AuthenticationPrincipal userSession: UserSession
+    ) {
+        return articleCommandUseCase.deleteComment(slug = slug, commentId = id, userSession)
+    }
+
+    @GetMapping("/{slug}/comments")
+    fun getComments(
+        @PathVariable slug: String,
+        @AuthenticationPrincipal userSession: UserSession
+    ): MultipleCommentResponse {
+        return articleQueryUseCase.getComments(slug, userSession).toResponse()
     }
 }

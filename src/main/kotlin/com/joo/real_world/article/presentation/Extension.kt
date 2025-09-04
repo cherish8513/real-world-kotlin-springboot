@@ -1,9 +1,8 @@
 package com.joo.real_world.article.presentation
 
 import com.joo.real_world.article.application.ArticleDto
-import com.joo.real_world.article.presentation.response.ArticleResponse
-import com.joo.real_world.article.presentation.response.ArticleResponseDto
-import com.joo.real_world.article.presentation.response.AuthorResponseDto
+import com.joo.real_world.article.application.CommentDto
+import com.joo.real_world.article.presentation.response.*
 
 fun ArticleDto.toResponse(): ArticleResponse {
     return ArticleResponse(
@@ -24,5 +23,41 @@ fun ArticleDto.toResponse(): ArticleResponse {
                 following = this.author.following
             )
         )
+    )
+}
+
+fun CommentDto.toResponse(): CommentResponse {
+    return CommentResponse(
+        comment = CommentResponseDto(
+            id = commentId,
+            body = body,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+            author = AuthorResponseDto(
+                username = author.username,
+                bio = author.bio,
+                image = author.image,
+                following = author.following
+            )
+        )
+    )
+}
+
+fun List<CommentDto>.toResponse(): MultipleCommentResponse {
+    return MultipleCommentResponse(
+        comments = this.map {
+            CommentResponseDto(
+                id = it.commentId,
+                body = it.body,
+                createdAt = it.createdAt,
+                updatedAt = it.updatedAt,
+                author = AuthorResponseDto(
+                    username = it.author.username,
+                    bio = it.author.bio,
+                    image = it.author.image,
+                    following = it.author.following
+                )
+            )
+        }
     )
 }
