@@ -1,5 +1,6 @@
 package com.joo.real_world.article.infrastructure
 
+import com.joo.real_world.tag.infrastructure.TagEntity
 import jakarta.persistence.*
 
 @Entity
@@ -12,7 +13,5 @@ class ArticleTagEntity(
     @JoinColumn(name = "articleId")
     val article: ArticleEntity,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tagId")
-    val tag: TagEntity
+    val tagId: Long
 )

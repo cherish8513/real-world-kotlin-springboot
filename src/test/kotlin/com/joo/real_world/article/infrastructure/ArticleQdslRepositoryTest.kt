@@ -8,6 +8,8 @@ import com.joo.real_world.common.application.query.PageSpec
 import com.joo.real_world.common.util.assertNotNull
 import com.joo.real_world.follow.domain.Follow
 import com.joo.real_world.follow.infrastructure.FollowJpaRepository
+import com.joo.real_world.tag.domain.TagRepository
+import com.joo.real_world.tag.domain.vo.TagId
 import com.joo.real_world.user.domain.User
 import com.joo.real_world.user.domain.vo.Email
 import com.joo.real_world.user.domain.vo.Password
@@ -26,7 +28,8 @@ class ArticleQdslRepositoryTest @Autowired constructor(
     private val userRepository: UserJpaRepository,
     private val followRepository: FollowJpaRepository,
     private val articleQueryRepository: ArticleQdslRepository,
-    private val favoriteRepository: FavoriteRepository
+    private val favoriteRepository: FavoriteRepository,
+    private val tagRepository: TagRepository
 ) {
 
     private lateinit var author: User
@@ -40,7 +43,7 @@ class ArticleQdslRepositoryTest @Autowired constructor(
     fun setup() {
         author = userRepository.save(User(username = "author", email = Email.of("a@test.com"), password = Password.of("pw")))
         follower = userRepository.save(User(username = "follower", email = Email.of("f@test.com"), password = Password.of("pw")))
-
+        val tags = tagRepository.findOrCreateTags(listOf(tag1, tag2))
         val articleId = articleRepository.save(
             Article(
                 slug = Slug(slug1),
@@ -48,7 +51,7 @@ class ArticleQdslRepositoryTest @Autowired constructor(
                 description = Description("desc1"),
                 body = Body("body1"),
                 authorId = author.id.assertNotNull(),
-                tags = listOf(Tag(tag1)),
+                tagIds = listOf(tags.filter { it.name == tag1 }[0].id.assertNotNull())
             )
         )
         articleRepository.save(
@@ -58,7 +61,7 @@ class ArticleQdslRepositoryTest @Autowired constructor(
                 description = Description("desc2"),
                 body = Body("body2"),
                 authorId = author.id.assertNotNull(),
-                tags = listOf(Tag(tag2))
+                tagIds = listOf(tags.filter { it.name == tag2 }[0].id.assertNotNull())
             )
         )
 
@@ -131,6 +134,5 @@ class ArticleQdslRepositoryTest @Autowired constructor(
         assertThat(result.author.following).isTrue
         assertThat(result.tagList).isNotEmpty
         assertThat(result.title).isEqualTo(title1)
-
     }
 }

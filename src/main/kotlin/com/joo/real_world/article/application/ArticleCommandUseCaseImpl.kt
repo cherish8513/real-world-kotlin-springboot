@@ -9,6 +9,8 @@ import com.joo.real_world.article.infrastructure.FavoriteRepository
 import com.joo.real_world.common.exception.CustomExceptionType
 import com.joo.real_world.common.util.assertNotNull
 import com.joo.real_world.security.infrastructure.UserSession
+import com.joo.real_world.tag.application.TagPort
+import com.joo.real_world.tag.domain.vo.TagId
 import com.joo.real_world.user.application.UserProviderService
 import com.joo.real_world.user.domain.vo.UserId
 import org.springframework.stereotype.Service
@@ -19,29 +21,36 @@ import org.springframework.transaction.annotation.Transactional
 class ArticleCommandUseCaseImpl(
     private val articleRepository: ArticleRepository,
     private val commentRepository: CommentRepository,
-    private val favoriteRepository: FavoriteRepository
+    private val favoriteRepository: FavoriteRepository,
+    private val tagPort: TagPort
 ) : ArticleCommandUseCase {
     override fun createArticle(createArticleCommand: CreateArticleCommand, userSession: UserSession): Long {
         val title = Title(createArticleCommand.title)
-        val baseSlug = Slug.fromTitle(Title(createArticleCommand.title))
-        var newSlug = baseSlug
-        var counter = 1
-        while (articleRepository.findBySlug(newSlug) != null && counter <= 9) {
-            newSlug = Slug("$baseSlug-$counter")
-            counter++
-        }
+        val slug = generateUniqueSlug(title)
 
-        return articleRepository.save(
-            Article.create(
-                slug = newSlug,
-                title = title,
-                description = Description(createArticleCommand.description),
-                body = Body(createArticleCommand.body),
-                tags = createArticleCommand.tagList?.map { Tag(it) },
-                authorId = UserId(userSession.userId)
-            )
-        ).value
+        val tagIds = createArticleCommand.tagList
+            ?.let { tagPort.findOrCreateTags(it) }
+            .orEmpty()
+
+        val article = Article.create(
+            slug = slug,
+            title = title,
+            description = Description(createArticleCommand.description),
+            body = Body(createArticleCommand.body),
+            tagIds = tagIds,
+            authorId = UserId(userSession.userId)
+        )
+
+        return articleRepository.save(article).value
     }
+
+    private fun generateUniqueSlug(title: Title): Slug {
+        val baseSlug = Slug.fromTitle(title)
+        return (0..9)
+            .map { if (it == 0) baseSlug else Slug("$baseSlug-$it") }
+            .first { articleRepository.findBySlug(it) == null }
+    }
+
 
     override fun updateArticle(updateArticleCommand: UpdateArticleCommand, userSession: UserSession): Long {
         val article = articleRepository.findBySlug(Slug(updateArticleCommand.slug)).assertNotNull(CustomExceptionType.NOT_FOUND_SLUG)

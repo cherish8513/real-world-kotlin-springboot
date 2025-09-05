@@ -1,5 +1,6 @@
 package com.joo.real_world.article.infrastructure
 
+import com.joo.real_world.tag.infrastructure.TagEntity
 import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
@@ -32,17 +33,17 @@ class ArticleEntity(
     @LastModifiedDate
     lateinit var updatedAt: LocalDateTime
 
-    fun addTag(tag: TagEntity) {
-        val articleTag = ArticleTagEntity(article = this, tag = tag)
+    fun addTag(tagId: Long) {
+        if (articleTags.any { it.tagId == tagId }) return
+
+        val articleTag = ArticleTagEntity(article = this, tagId = tagId)
         articleTags.add(articleTag)
-        tag.articleTags.add(articleTag)
     }
 
-    fun removeTag(tag: TagEntity) {
-        val articleTag = articleTags.find { it.tag == tag }
+    fun removeTag(tagId: Long) {
+        val articleTag = articleTags.find { it.tagId == tagId }
         articleTag?.let {
             articleTags.remove(it)
-            tag.articleTags.remove(it)
         }
     }
 }

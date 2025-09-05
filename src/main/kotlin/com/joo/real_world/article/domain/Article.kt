@@ -3,6 +3,7 @@ package com.joo.real_world.article.domain
 import com.joo.real_world.article.domain.vo.*
 import com.joo.real_world.common.exception.CustomExceptionType
 import com.joo.real_world.common.util.assertNotNull
+import com.joo.real_world.tag.domain.vo.TagId
 import com.joo.real_world.user.domain.vo.UserId
 import java.time.LocalDateTime
 
@@ -12,7 +13,7 @@ class Article(
     val title: Title,
     val description: Description,
     val body: Body,
-    val tags: List<Tag> = emptyList(),
+    val tagIds: List<TagId> = emptyList(),
     val authorId: UserId,
     val comments: MutableList<Comment> = mutableListOf(),
     val favorites: MutableSet<Favorite> = mutableSetOf(),
@@ -29,7 +30,7 @@ class Article(
             title = title ?: this.title,
             description = description ?: this.description,
             body = body ?: this.body,
-            tags = this.tags,
+            tagIds = this.tagIds,
             authorId = this.authorId,
             createdAt = this.createdAt,
             updatedAt = LocalDateTime.now()
@@ -80,7 +81,7 @@ class Article(
             title: Title,
             description: Description,
             body: Body,
-            tags: List<Tag>?,
+            tagIds: List<TagId>?,
             authorId: UserId
         ): Article {
             return Article(
@@ -88,7 +89,7 @@ class Article(
                 title = title,
                 description = description,
                 body = body,
-                tags = tags ?: emptyList(),
+                tagIds = tagIds ?: emptyList(),
                 authorId = authorId
             )
         }

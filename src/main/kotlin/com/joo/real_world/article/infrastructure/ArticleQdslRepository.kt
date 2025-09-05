@@ -9,10 +9,10 @@ import com.joo.real_world.article.infrastructure.QArticleEntity.articleEntity
 import com.joo.real_world.article.infrastructure.QArticleTagEntity.articleTagEntity
 import com.joo.real_world.article.infrastructure.QCommentEntity.commentEntity
 import com.joo.real_world.article.infrastructure.QFavoriteEntity.*
-import com.joo.real_world.article.infrastructure.QTagEntity.tagEntity
 import com.joo.real_world.common.application.query.PageSpec
 import com.joo.real_world.common.util.assertNotNull
 import com.joo.real_world.follow.infrastructure.QFollowEntity.followEntity
+import com.joo.real_world.tag.infrastructure.QTagEntity.tagEntity
 import com.joo.real_world.user.infrastructure.QUserEntity.userEntity
 import com.querydsl.core.annotations.QueryProjection
 import com.querydsl.core.types.dsl.CaseBuilder
@@ -220,7 +220,7 @@ class ArticleQdslRepository(
         if (articleCondition.tag != null) {
             baseQuery = baseQuery
                 .join(articleTagEntity).on(articleTagEntity.article.id.eq(articleEntity.id))
-                .join(tagEntity).on(tagEntity.id.eq(articleTagEntity.tag.id))
+                .join(tagEntity).on(tagEntity.id.eq(articleTagEntity.tagId))
                 .where(tagEntity.name.eq(articleCondition.tag))
         }
 
@@ -242,7 +242,7 @@ class ArticleQdslRepository(
             )
             .from(articleEntity)
             .join(articleTagEntity).on(articleTagEntity.article.id.eq(articleEntity.id))
-            .join(tagEntity).on(tagEntity.id.eq(articleTagEntity.tag.id))
+            .join(tagEntity).on(tagEntity.id.eq(articleTagEntity.tagId))
             .where(articleEntity.id.`in`(articleIds))
             .fetch()
     }

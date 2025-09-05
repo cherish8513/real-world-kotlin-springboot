@@ -5,6 +5,7 @@ import com.joo.real_world.article.domain.Comment
 import com.joo.real_world.article.domain.Favorite
 import com.joo.real_world.article.domain.vo.*
 import com.joo.real_world.common.util.assertNotNull
+import com.joo.real_world.tag.domain.vo.TagId
 import com.joo.real_world.user.domain.vo.UserId
 
 fun Article.toEntity(): ArticleEntity {
@@ -44,7 +45,7 @@ fun ArticleEntity.toDomain(): Article {
         title = Title(title),
         description = Description(description),
         body = Body(body),
-        tags = articleTags.map { Tag(it.tag.name) },
+        tagIds = articleTags.map { TagId(it.tagId) },
         authorId = UserId(authorId),
         comments = this.comments.map {
             Comment(
