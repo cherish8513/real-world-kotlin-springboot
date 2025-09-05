@@ -1,6 +1,7 @@
 package com.joo.real_world.common.exception
 
 import jakarta.validation.ConstraintViolationException
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -9,6 +10,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
+    private val log = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
+
     @ExceptionHandler(
         value = [MethodArgumentNotValidException::class, ConstraintViolationException::class]
     )
@@ -53,6 +56,8 @@ class GlobalExceptionHandler {
                 body = listOf(e.message ?: CustomExceptionType.UNEXPECTED_ERROR_OCCURRED.message)
             )
         )
+
+        log.error("Unexpected error occurred", e)
 
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)

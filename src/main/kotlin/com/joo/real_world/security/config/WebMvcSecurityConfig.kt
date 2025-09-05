@@ -33,11 +33,13 @@ class WebMvcSecurityConfig(
                 authorize
                     .requestMatchers(*AUTH_EXCLUDE_PATH.toTypedArray()).permitAll()
                     .requestMatchers(HttpMethod.GET, *AUTH_EXCLUDE_PATH_GET.toTypedArray()).permitAll()
+                    .requestMatchers("/h2-console/**").permitAll()
                     .anyRequest().authenticated()
             }
             .sessionManagement { session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
+            .headers { headers -> headers.frameOptions { it.sameOrigin() } }
             .addFilterBefore(exceptionHandlerFilter, UsernamePasswordAuthenticationFilter::class.java)
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
 

@@ -5,6 +5,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("plugin.jpa") version "1.9.25"
     id("jacoco")
+    kotlin("kapt") version "2.0.20"
 }
 
 group = "com.joo"
@@ -39,6 +40,11 @@ dependencies {
 
     // h2
     runtimeOnly("com.h2database:h2")
+
+    // querydsl
+    implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
+    kapt("com.querydsl:querydsl-apt:5.0.0:jakarta")
+    kapt("org.springframework.boot:spring-boot-configuration-processor")
 
     // test
     testImplementation("org.springframework.boot:spring-boot-starter-test")

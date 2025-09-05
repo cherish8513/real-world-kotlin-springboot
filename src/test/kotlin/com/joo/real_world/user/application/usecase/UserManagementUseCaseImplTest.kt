@@ -7,11 +7,7 @@ import com.joo.real_world.user.domain.UserRepository
 import com.joo.real_world.user.domain.vo.Email
 import com.joo.real_world.user.domain.vo.Password
 import com.joo.real_world.user.domain.vo.UserId
-import io.mockk.every
-import io.mockk.just
-import io.mockk.mockk
-import io.mockk.runs
-import io.mockk.verify
+import io.mockk.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -20,7 +16,8 @@ class UserManagementUseCaseImplTest {
     private val userRepository: UserRepository = mockk()
     private val passwordEncoder: PasswordEncoder = mockk()
     private val userDomainService: UserDomainService = mockk()
-    private val userManagementUseCase: UserManagementUseCase = UserManagementUseCaseImpl(passwordEncoder, userRepository, userDomainService)
+    private val userManagementUseCase: UserManagementUseCase =
+        UserManagementUseCaseImpl(passwordEncoder, userRepository, userDomainService)
 
     @Test
     fun `success to register`() {
@@ -30,7 +27,8 @@ class UserManagementUseCaseImplTest {
         val rawPassword = "password"
         val encodedPassword = "encodedPw"
 
-        val user = User(id = UserId(1L), email = Email.of(email), username = username, password = Password.of(encodedPassword))
+        val user =
+            User(id = UserId(1L), email = Email.of(email), username = username, password = Password.of(encodedPassword))
 
         every { userRepository.findByEmail(Email.of(email)) } returns null
         every { userRepository.findByUsername(username) } returns null
