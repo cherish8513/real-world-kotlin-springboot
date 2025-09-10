@@ -11,7 +11,7 @@ fun FollowEntity.toDomain(): Follow =
 
 fun Follow.toEntity(): FollowEntity =
     FollowEntity(
-        FollowerId(
+        FollowId(
             followerId = this.followerId.value,
             followeeId = this.followeeId.value
         )

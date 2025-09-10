@@ -113,24 +113,13 @@ tasks.jacocoTestCoverageVerification {
     dependsOn(tasks.jacocoTestReport)
     classDirectories.setFrom(tasks.jacocoTestReport.get().classDirectories)
 
-//    violationRules {
-//        rule {
-//            limit {
-//                minimum = "0.80".toBigDecimal()
-//            }
-//        }
-//
-//        rule {
-//            enabled = true
-//            element = "CLASS"
-//
-//            limit {
-//                counter = "BRANCH"
-//                value = "COVEREDRATIO"
-//                minimum = "0.70".toBigDecimal()
-//            }
-//        }
-//    }
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.60".toBigDecimal()
+            }
+        }
+    }
 }
 
 tasks.build {
