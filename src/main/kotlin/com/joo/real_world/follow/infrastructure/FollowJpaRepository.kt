@@ -6,7 +6,7 @@ import com.joo.real_world.user.domain.vo.UserId
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
-interface IFollowerJpaRepository : JpaRepository<FollowEntity, FollowerId>
+interface IFollowerJpaRepository : JpaRepository<FollowEntity, FollowId>
 
 @Repository
 class FollowJpaRepository(
@@ -18,7 +18,7 @@ class FollowJpaRepository(
 
     override fun isFollowing(followerId: UserId, followeeId: UserId): Boolean {
         return followerJpaRepository.existsById(
-            FollowerId(
+            FollowId(
                 followerId = followerId.value,
                 followeeId = followeeId.value
             )
@@ -26,6 +26,6 @@ class FollowJpaRepository(
     }
 
     override fun unFollow(followerId: UserId, followeeId: UserId) {
-        followerJpaRepository.deleteById(FollowerId(followerId = followerId.value, followeeId = followeeId.value))
+        followerJpaRepository.deleteById(FollowId(followerId = followerId.value, followeeId = followeeId.value))
     }
 }

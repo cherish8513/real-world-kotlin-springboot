@@ -12,7 +12,7 @@ import java.io.Serializable
 @Table(name = "follow")
 class FollowEntity(
     @EmbeddedId
-    val id: FollowerId
+    val id: FollowId
 ) {
     val followerId: Long
         get() = id.followerId ?: throw CustomExceptionType.UNEXPECTED_ERROR_OCCURRED.toException("followerId is null")
@@ -22,7 +22,7 @@ class FollowEntity(
 }
 
 @Embeddable
-class FollowerId : Serializable {
+class FollowId : Serializable {
     var followerId: Long? = null
     var followeeId: Long? = null
 
@@ -33,7 +33,7 @@ class FollowerId : Serializable {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is FollowerId) return false
+        if (other !is FollowId) return false
         return followerId == other.followerId && followeeId == other.followeeId
     }
 
