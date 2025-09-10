@@ -68,7 +68,10 @@ class Article(
     }
 
     fun unfavorite(userId: UserId) {
-        favorites.remove(Favorite(userId = userId, articleId = this.id.assertNotNull()))
+        val target = favorites.find { it.userId == userId && it.articleId == this.id.assertNotNull() }
+        if (target != null) {
+            favorites.remove(target)
+        }
     }
 
     fun isFavorite(userId: UserId): Boolean {
