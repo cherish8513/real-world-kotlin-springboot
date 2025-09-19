@@ -8,7 +8,7 @@ import com.joo.real_world.article.application.query.dto.ArticleCondition
 import com.joo.real_world.article.infrastructure.QArticleEntity.articleEntity
 import com.joo.real_world.article.infrastructure.QArticleTagEntity.articleTagEntity
 import com.joo.real_world.article.infrastructure.QCommentEntity.commentEntity
-import com.joo.real_world.article.infrastructure.QFavoriteEntity.*
+import com.joo.real_world.article.infrastructure.QFavoriteEntity.favoriteEntity
 import com.joo.real_world.common.application.query.PageSpec
 import com.joo.real_world.common.util.assertNotNull
 import com.joo.real_world.follow.infrastructure.QFollowEntity.followEntity

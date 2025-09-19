@@ -1,6 +1,5 @@
 package com.joo.real_world.article.infrastructure
 
-import com.joo.real_world.tag.infrastructure.TagEntity
 import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate

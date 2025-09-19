@@ -1,17 +1,17 @@
-package com.joo.real_world.article.application
+package com.joo.real_world.article.application.usecase
 
+import com.joo.real_world.article.application.AddCommentCommand
+import com.joo.real_world.article.application.CreateArticleCommand
+import com.joo.real_world.article.application.UpdateArticleCommand
 import com.joo.real_world.article.domain.Article
 import com.joo.real_world.article.domain.ArticleRepository
-import com.joo.real_world.article.domain.Comment
 import com.joo.real_world.article.domain.vo.*
 import com.joo.real_world.article.infrastructure.CommentRepository
 import com.joo.real_world.article.infrastructure.FavoriteRepository
 import com.joo.real_world.common.exception.CustomExceptionType
 import com.joo.real_world.common.util.assertNotNull
 import com.joo.real_world.security.infrastructure.UserSession
-import com.joo.real_world.tag.application.TagPort
-import com.joo.real_world.tag.domain.vo.TagId
-import com.joo.real_world.user.application.UserProviderService
+import com.joo.real_world.tag.application.TagCommandService
 import com.joo.real_world.user.domain.vo.UserId
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -22,14 +22,14 @@ class ArticleCommandUseCaseImpl(
     private val articleRepository: ArticleRepository,
     private val commentRepository: CommentRepository,
     private val favoriteRepository: FavoriteRepository,
-    private val tagPort: TagPort
+    private val tagCommandService: TagCommandService
 ) : ArticleCommandUseCase {
     override fun createArticle(createArticleCommand: CreateArticleCommand, userSession: UserSession): Long {
         val title = Title(createArticleCommand.title)
         val slug = generateUniqueSlug(title)
 
         val tagIds = createArticleCommand.tagList
-            ?.let { tagPort.findOrCreateTags(it) }
+            ?.let { tagCommandService.findOrCreateTags(it) }
             .orEmpty()
 
         val article = Article.create(

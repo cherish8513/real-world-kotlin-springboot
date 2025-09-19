@@ -3,7 +3,7 @@ package com.joo.real_world.follow.application.usecase
 import com.joo.real_world.follow.domain.FollowDomainService
 import com.joo.real_world.follow.domain.FollowRepository
 import com.joo.real_world.user.application.UserDto
-import com.joo.real_world.user.application.UserProviderService
+import com.joo.real_world.user.application.UserQueryService
 import com.joo.real_world.user.domain.vo.UserId
 import io.mockk.*
 import org.junit.jupiter.api.Assertions.*
@@ -12,15 +12,15 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-class FollowManagementUseCaseImplTest {
+class FollowCommandUseCaseImplTest {
 
     private val followRepository: FollowRepository = mockk()
-    private val userProviderService: UserProviderService = mockk()
+    private val userQueryService: UserQueryService = mockk()
     private val followDomainService: FollowDomainService = mockk()
 
-    private val useCase = FollowManagementUseCaseImpl(
+    private val useCase = FollowCommandUseCaseImpl(
         followRepository = followRepository,
-        userProviderService = userProviderService,
+        userQueryService = userQueryService,
         followDomainService = followDomainService
     )
 
@@ -59,8 +59,8 @@ class FollowManagementUseCaseImplTest {
         @DisplayName("정상적으로 팔로우를 할 수 있다")
         fun `should follow user successfully`() {
             // given
-            every { userProviderService.getUser(followerUserId.value) } returns followerUser
-            every { userProviderService.getUser(followeeUsername) } returns followeeUser
+            every { userQueryService.getUser(followerUserId.value) } returns followerUser
+            every { userQueryService.getUser(followeeUsername) } returns followeeUser
             every { followRepository.follow(any()) } returns mockk()
             every { followDomainService.validateCanFollow(any()) } just runs
 
@@ -73,8 +73,8 @@ class FollowManagementUseCaseImplTest {
             assertEquals(followeeUser.image, result.image)
             assertTrue(result.following)
 
-            verify(exactly = 1) { userProviderService.getUser(followerUserId.value) }
-            verify(exactly = 1) { userProviderService.getUser(followeeUsername) }
+            verify(exactly = 1) { userQueryService.getUser(followerUserId.value) }
+            verify(exactly = 1) { userQueryService.getUser(followeeUsername) }
             verify(exactly = 1) { followRepository.follow(any()) }
         }
     }
@@ -87,8 +87,8 @@ class FollowManagementUseCaseImplTest {
         @DisplayName("정상적으로 언팔로우를 할 수 있다")
         fun `should unfollow user successfully`() {
             // given
-            every { userProviderService.getUser(followerUserId.value) } returns followerUser
-            every { userProviderService.getUser(followeeUsername) } returns followeeUser
+            every { userQueryService.getUser(followerUserId.value) } returns followerUser
+            every { userQueryService.getUser(followeeUsername) } returns followeeUser
             every { followRepository.unFollow(followerUserId, followeeUserId) } just Runs
             every { followDomainService.validateCanUnfollow(any()) } just runs
 
@@ -101,8 +101,8 @@ class FollowManagementUseCaseImplTest {
             assertEquals(followeeUser.image, result.image)
             assertFalse(result.following)
 
-            verify(exactly = 1) { userProviderService.getUser(followerUserId.value) }
-            verify(exactly = 1) { userProviderService.getUser(followeeUsername) }
+            verify(exactly = 1) { userQueryService.getUser(followerUserId.value) }
+            verify(exactly = 1) { userQueryService.getUser(followeeUsername) }
             verify(exactly = 1) { followRepository.unFollow(followerUserId, followeeUserId) }
         }
     }

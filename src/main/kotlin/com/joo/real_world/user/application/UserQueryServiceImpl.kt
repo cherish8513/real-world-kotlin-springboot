@@ -9,9 +9,9 @@ import org.springframework.transaction.annotation.Transactional
 
 @Transactional(readOnly = true, rollbackFor = [Exception::class])
 @Service
-class UserProviderServiceImpl(
+class UserQueryServiceImpl(
     private val userRepository: UserRepository
-) : UserProviderService {
+) : UserQueryService {
     override fun getUser(userId: Long): UserDto {
         return userRepository.findByUserId(UserId(userId))
             .assertNotNull(CustomExceptionType.INVALID_USER)

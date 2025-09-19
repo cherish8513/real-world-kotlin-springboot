@@ -1,5 +1,8 @@
-package com.joo.real_world.article.application
+package com.joo.real_world.article.application.usecase
 
+import com.joo.real_world.article.application.AddCommentCommand
+import com.joo.real_world.article.application.CreateArticleCommand
+import com.joo.real_world.article.application.UpdateArticleCommand
 import com.joo.real_world.security.infrastructure.UserSession
 
 interface ArticleCommandUseCase {

@@ -4,21 +4,21 @@ import com.joo.real_world.follow.domain.Follow
 import com.joo.real_world.follow.domain.FollowDomainService
 import com.joo.real_world.follow.domain.FollowRepository
 import com.joo.real_world.user.application.ProfileDto
-import com.joo.real_world.user.application.UserProviderService
+import com.joo.real_world.user.application.UserQueryService
 import com.joo.real_world.user.domain.vo.UserId
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Transactional(rollbackFor = [Exception::class])
 @Service
-class FollowManagementUseCaseImpl(
+class FollowCommandUseCaseImpl(
     private val followRepository: FollowRepository,
     private val followDomainService: FollowDomainService,
-    private val userProviderService: UserProviderService,
-) : FollowManagementUseCase {
+    private val userQueryService: UserQueryService,
+) : FollowCommandUseCase {
     override fun follow(followerId: Long, followeeUsername: String): ProfileDto {
-        val follower = userProviderService.getUser(followerId)
-        val followee = userProviderService.getUser(followeeUsername)
+        val follower = userQueryService.getUser(followerId)
+        val followee = userQueryService.getUser(followeeUsername)
         val follow = Follow.create(followerId = UserId(follower.id), followeeId = UserId(followee.id))
 
         followDomainService.validateCanFollow(follow)
@@ -33,8 +33,8 @@ class FollowManagementUseCaseImpl(
     }
 
     override fun unfollow(followerId: Long, followeeUsername: String): ProfileDto {
-        val follower = userProviderService.getUser(followerId)
-        val followee = userProviderService.getUser(followeeUsername)
+        val follower = userQueryService.getUser(followerId)
+        val followee = userQueryService.getUser(followeeUsername)
         val follow = Follow.create(followerId = UserId(follower.id), followeeId = UserId(followee.id))
         followDomainService.validateCanUnfollow(follow)
         followRepository.unFollow(followerId = follow.followerId, followeeId = follow.followeeId)

@@ -3,8 +3,8 @@ package com.joo.real_world.user.presentation
 import com.joo.real_world.AbstractControllerTest
 import com.joo.real_world.user.application.ModifyUserDto
 import com.joo.real_world.user.application.UserDto
-import com.joo.real_world.user.application.UserProviderService
-import com.joo.real_world.user.application.usecase.UserManagementUseCase
+import com.joo.real_world.user.application.UserQueryService
+import com.joo.real_world.user.application.usecase.UserCommandUseCase
 import com.joo.real_world.user.presentation.request.ModifyUser
 import com.joo.real_world.user.presentation.request.ModifyUserRequest
 import com.joo.real_world.user.presentation.response.User
@@ -24,10 +24,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 class UserControllerTest : AbstractControllerTest() {
 
     @MockkBean
-    private lateinit var userManagementUseCase: UserManagementUseCase
+    private lateinit var userCommandUseCase: UserCommandUseCase
 
     @MockkBean
-    private lateinit var userProviderService: UserProviderService
+    private lateinit var userQueryService: UserQueryService
 
     @Test
     @WithMockUser
@@ -54,7 +54,7 @@ class UserControllerTest : AbstractControllerTest() {
             )
         )
 
-        every { userProviderService.getUser(testUserSession.userId) } returns userDto
+        every { userQueryService.getUser(testUserSession.userId) } returns userDto
 
         // when & then
         mockMvc.perform(get("/api/user"))
@@ -62,7 +62,7 @@ class UserControllerTest : AbstractControllerTest() {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)))
 
-        verify(exactly = 1) { userProviderService.getUser(testUserSession.userId) }
+        verify(exactly = 1) { userQueryService.getUser(testUserSession.userId) }
     }
 
     @Test
@@ -105,7 +105,7 @@ class UserControllerTest : AbstractControllerTest() {
 
         val requestJson = objectMapper.writeValueAsString(modifyRequest)
 
-        every { userManagementUseCase.modifyUser(any<ModifyUserDto>()) } returns updatedUserDto
+        every { userCommandUseCase.modifyUser(any<ModifyUserDto>()) } returns updatedUserDto
 
 
         // when & then
@@ -119,7 +119,7 @@ class UserControllerTest : AbstractControllerTest() {
             .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)))
 
         verify(exactly = 1) {
-            userManagementUseCase.modifyUser(
+            userCommandUseCase.modifyUser(
                 match<ModifyUserDto> { dto ->
                     dto.id == testUserSession.userId &&
                             dto.username == username &&
@@ -159,6 +159,6 @@ class UserControllerTest : AbstractControllerTest() {
             .andExpect(jsonPath("$.errors.body[?(@ == 'Username must not be blank')]").exists())
             .andExpect(jsonPath("$.errors.body[?(@ == 'Invalid email format')]").exists())
 
-        verify(exactly = 0) { userManagementUseCase.modifyUser(any()) }
+        verify(exactly = 0) { userCommandUseCase.modifyUser(any()) }
     }
 }

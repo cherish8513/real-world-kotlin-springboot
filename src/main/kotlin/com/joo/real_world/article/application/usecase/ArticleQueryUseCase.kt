@@ -1,5 +1,8 @@
-package com.joo.real_world.article.application
+package com.joo.real_world.article.application.usecase
 
+import com.joo.real_world.article.application.ArticleDto
+import com.joo.real_world.article.application.CommentDto
+import com.joo.real_world.article.application.GetArticleQuery
 import com.joo.real_world.security.infrastructure.UserSession
 
 interface ArticleQueryUseCase {

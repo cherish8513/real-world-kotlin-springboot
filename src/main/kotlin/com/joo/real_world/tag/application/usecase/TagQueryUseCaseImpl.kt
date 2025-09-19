@@ -1,4 +1,4 @@
-package com.joo.real_world.tag.application
+package com.joo.real_world.tag.application.usecase
 
 import com.joo.real_world.tag.domain.TagRepository
 import org.springframework.stereotype.Service
