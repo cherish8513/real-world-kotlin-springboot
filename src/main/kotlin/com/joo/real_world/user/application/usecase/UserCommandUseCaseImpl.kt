@@ -17,11 +17,11 @@ import org.springframework.transaction.annotation.Transactional
 
 @Transactional(rollbackFor = [Exception::class])
 @Service
-class UserManagementUseCaseImpl(
+class UserCommandUseCaseImpl(
     private val passwordEncoder: PasswordEncoder,
     private val userRepository: UserRepository,
     private val userDomainService: UserDomainService
-) : UserManagementUseCase {
+) : UserCommandUseCase {
     override fun register(username: String, email: String, password: String): UserDto {
         userDomainService.validateDuplicateUser(email = email, username = username)
 

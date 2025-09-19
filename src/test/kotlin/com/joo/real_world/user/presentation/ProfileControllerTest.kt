@@ -2,7 +2,7 @@ package com.joo.real_world.user.presentation
 
 import com.joo.real_world.AbstractControllerTest
 import com.joo.real_world.user.application.ProfileDto
-import com.joo.real_world.user.application.usecase.ViewProfileUseCase
+import com.joo.real_world.user.application.usecase.UserQueryUseCase
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import org.junit.jupiter.api.Test
@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 class ProfileControllerTest : AbstractControllerTest() {
 
     @MockkBean
-    private lateinit var viewProfileUseCase: ViewProfileUseCase
+    private lateinit var userQueryUseCase: UserQueryUseCase
 
     @Test
     @WithMockUser
@@ -31,7 +31,7 @@ class ProfileControllerTest : AbstractControllerTest() {
             image = "https://example.com/avatar.png",
             following = true
         )
-        every { viewProfileUseCase.getProfile(username, testUserSession.userId) } returns profileDto
+        every { userQueryUseCase.getProfile(username, testUserSession.userId) } returns profileDto
 
         // when & then
         mockMvc.perform(get("/api/profiles/{username}", username))

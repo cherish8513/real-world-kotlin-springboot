@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-class UserProviderServiceImplTest {
+class UserQueryServiceImplTest {
 
     private val userRepository: UserRepository = mockk()
-    private val userProviderService: UserProviderService = UserProviderServiceImpl(userRepository)
+    private val userQueryService: UserQueryService = UserQueryServiceImpl(userRepository)
 
     @Test
     fun `return UserDto when success to get user`() {
@@ -31,7 +31,7 @@ class UserProviderServiceImplTest {
         every { userRepository.findByUserId(UserId(1L)) } returns user
 
         // when
-        val result = userProviderService.getUser(1L)
+        val result = userQueryService.getUser(1L)
 
         // then
         assertEquals(user.id?.value, result.id)
@@ -48,7 +48,7 @@ class UserProviderServiceImplTest {
 
         // when & then
         val ex = assertThrows<RuntimeException> {
-            userProviderService.getUser(999L)
+            userQueryService.getUser(999L)
         }
         assertEquals(CustomExceptionType.INVALID_USER.toException()::class, ex::class)
     }

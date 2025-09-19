@@ -7,9 +7,9 @@ import org.springframework.transaction.annotation.Transactional
 
 @Transactional(readOnly = true, rollbackFor = [Exception::class])
 @Service
-class FollowRelationServiceImpl(
+class FollowQueryServiceImpl(
     private val followRepository: FollowRepository
-) : FollowRelationService {
+) : FollowQueryService {
     override fun isFollowing(followerId: Long, followeeId: Long): Boolean {
         return followRepository.isFollowing(followerId = UserId(followerId), followeeId = UserId(followeeId))
     }

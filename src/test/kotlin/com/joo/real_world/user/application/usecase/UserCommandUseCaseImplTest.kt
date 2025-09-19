@@ -12,12 +12,12 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.security.crypto.password.PasswordEncoder
 
-class UserManagementUseCaseImplTest {
+class UserCommandUseCaseImplTest {
     private val userRepository: UserRepository = mockk()
     private val passwordEncoder: PasswordEncoder = mockk()
     private val userDomainService: UserDomainService = mockk()
-    private val userManagementUseCase: UserManagementUseCase =
-        UserManagementUseCaseImpl(passwordEncoder, userRepository, userDomainService)
+    private val userCommandUseCase: UserCommandUseCase =
+        UserCommandUseCaseImpl(passwordEncoder, userRepository, userDomainService)
 
     @Test
     fun `success to register`() {
@@ -37,7 +37,7 @@ class UserManagementUseCaseImplTest {
         every { userDomainService.validateDuplicateUser(email, username) } just runs
 
         // when
-        val result = userManagementUseCase.register(username, email, rawPassword)
+        val result = userCommandUseCase.register(username, email, rawPassword)
 
         // then
         assertEquals(username, result.username)
@@ -69,7 +69,7 @@ class UserManagementUseCaseImplTest {
         every { userRepository.save(any()) } answers { firstArg<User>() }
 
         // when
-        val result = userManagementUseCase.modifyUser(modifyDto)
+        val result = userCommandUseCase.modifyUser(modifyDto)
 
         // then
         assertEquals(modifyDto.username, result.username)

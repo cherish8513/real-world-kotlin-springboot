@@ -1,7 +1,7 @@
 package com.joo.real_world.tag.presentation
 
 import com.joo.real_world.AbstractControllerTest
-import com.joo.real_world.tag.application.TagQueryUseCase
+import com.joo.real_world.tag.application.usecase.TagQueryUseCase
 import com.joo.real_world.tag.presentation.response.MultipleTagResponse
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -13,8 +13,6 @@ import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import com.fasterxml.jackson.databind.ObjectMapper
-import org.springframework.beans.factory.annotation.Autowired
 
 @WebMvcTest(TagController::class)
 class TagControllerTest : AbstractControllerTest() {

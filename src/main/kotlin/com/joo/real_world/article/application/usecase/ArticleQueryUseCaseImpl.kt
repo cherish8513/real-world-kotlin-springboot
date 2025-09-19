@@ -1,10 +1,13 @@
-package com.joo.real_world.article.application
+package com.joo.real_world.article.application.usecase
 
+import com.joo.real_world.article.application.ArticleDto
+import com.joo.real_world.article.application.CommentDto
+import com.joo.real_world.article.application.GetArticleQuery
 import com.joo.real_world.article.application.query.ArticleQueryRepository
 import com.joo.real_world.article.application.query.dto.ArticleCondition
 import com.joo.real_world.common.application.query.PageSpec
 import com.joo.real_world.security.infrastructure.UserSession
-import com.joo.real_world.user.application.UserProviderService
+import com.joo.real_world.user.application.UserQueryService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -12,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class ArticleQueryUseCaseImpl(
     private val articleQueryRepository: ArticleQueryRepository,
-    private val userProviderService: UserProviderService,
+    private val userQueryService: UserQueryService,
 ) : ArticleQueryUseCase {
     override fun getArticle(slug: String, userSession: UserSession): ArticleDto {
         return articleQueryRepository.findBySlugAndUserId(slug, userSession.userId)
@@ -27,8 +30,8 @@ class ArticleQueryUseCaseImpl(
             articleCondition = ArticleCondition(
                 userId = userSession.userId,
                 tag = getArticleQuery.tag,
-                authorId = getArticleQuery.author?.let { userProviderService.getUser(it).id },
-                favoriteByUserId = getArticleQuery.favorited?.let { userProviderService.getUser(it).id }
+                authorId = getArticleQuery.author?.let { userQueryService.getUser(it).id },
+                favoriteByUserId = getArticleQuery.favorited?.let { userQueryService.getUser(it).id }
             ),
             pageSpec = PageSpec(
                 limit = getArticleQuery.limit,
@@ -42,8 +45,8 @@ class ArticleQueryUseCaseImpl(
             articleCondition = ArticleCondition(
                 userId = userSession.userId,
                 tag = getArticleQuery.tag,
-                authorId = getArticleQuery.author?.let { userProviderService.getUser(it).id },
-                favoriteByUserId = getArticleQuery.favorited?.let { userProviderService.getUser(it).id }
+                authorId = getArticleQuery.author?.let { userQueryService.getUser(it).id },
+                favoriteByUserId = getArticleQuery.favorited?.let { userQueryService.getUser(it).id }
             ),
             pageSpec = PageSpec(
                 limit = getArticleQuery.limit,

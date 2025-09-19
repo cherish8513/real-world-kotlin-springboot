@@ -1,6 +1,8 @@
 package com.joo.real_world.article.infrastructure
 
-import com.joo.real_world.article.domain.*
+import com.joo.real_world.article.domain.Article
+import com.joo.real_world.article.domain.Comment
+import com.joo.real_world.article.domain.Favorite
 import com.joo.real_world.article.domain.vo.*
 import com.joo.real_world.common.util.assertNotNull
 import com.joo.real_world.tag.domain.vo.TagId
@@ -8,8 +10,6 @@ import com.joo.real_world.user.domain.vo.UserId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
-import kotlin.reflect.full.memberProperties
-import kotlin.reflect.jvm.isAccessible
 
 class ArticleMappingTest {
 

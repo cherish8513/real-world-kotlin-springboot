@@ -8,9 +8,9 @@ import org.springframework.transaction.annotation.Transactional
 
 @Transactional(rollbackFor = [Exception::class])
 @Service
-class TagServiceClient(
+class TagCommandServiceImpl(
     private val tagRepository: TagRepository
-) : TagPort {
+) : TagCommandService {
     override fun findOrCreateTags(tagNames: List<String>): List<TagId> {
         return tagRepository.findOrCreateTags(tagNames).map { it.id.assertNotNull() }
     }

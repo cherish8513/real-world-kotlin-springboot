@@ -5,7 +5,10 @@ import com.joo.real_world.article.application.query.dto.ArticleCondition
 import com.joo.real_world.article.domain.Article
 import com.joo.real_world.article.domain.Comment
 import com.joo.real_world.article.domain.Favorite
-import com.joo.real_world.article.domain.vo.*
+import com.joo.real_world.article.domain.vo.Body
+import com.joo.real_world.article.domain.vo.Description
+import com.joo.real_world.article.domain.vo.Slug
+import com.joo.real_world.article.domain.vo.Title
 import com.joo.real_world.common.application.query.PageSpec
 import com.joo.real_world.common.util.assertNotNull
 import com.joo.real_world.follow.domain.Follow
