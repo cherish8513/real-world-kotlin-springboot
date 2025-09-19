@@ -43,7 +43,7 @@ src
      │   ├── article
      │   │   ├── presentation
      │   │   ├── application
-     │   │   │   ├── command
+     │   │   │   ├── usecase
      │   │   │   └── query
      │   │   ├── domain
      │   │   │   ├── aggregate
